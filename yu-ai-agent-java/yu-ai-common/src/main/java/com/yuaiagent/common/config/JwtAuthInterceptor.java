@@ -28,7 +28,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
     private String jwtSecret;
 
     private static final String HEADER_AUTHORIZATION = "Authorization";
-    private static final String BEARER_PREFIX = "Bearer ";
+
     public static final String REQUEST_USER_ID = "currentUserId";
     public static final String REQUEST_USERNAME = "currentUsername";
 
@@ -61,14 +61,14 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
         String authHeader = request.getHeader(HEADER_AUTHORIZATION);
 
         // 检查 Token 是否存在
-        if (!StringUtils.hasText(authHeader) || !authHeader.startsWith(BEARER_PREFIX)) {
+        if (!StringUtils.hasText(authHeader)) {
             log.warn("请求路径 {} 缺少有效的 Authorization 头", path);
             sendUnauthorized(response, "未提供认证Token");
             return false;
         }
 
         // 提取 Token
-        String token = authHeader.substring(BEARER_PREFIX.length());
+        String token = authHeader;
 
         try {
             // 验证 Token

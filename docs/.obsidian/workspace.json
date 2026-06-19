@@ -36,7 +36,8 @@
               "title": "tasks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       },
       {
         "id": "53ee58f9d199417b",
@@ -220,7 +221,7 @@
       "bases:新建数据库": false
     }
   },
-  "active": "102197b57d891e0d",
+  "active": "db0de4d76ee93cf2",
   "lastOpenFiles": [
     "prd.md",
     "tasks.md",

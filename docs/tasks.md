@@ -292,11 +292,11 @@ yu-ai-agent-python/
   - [ ] 按 last_message_time 倒序排序
   - [ ] 仅返回当前用户的会话
 - [ ] 实现会话详情查询
-- [ ] 实现会话 Controller
+- [x] 实现会话 Controller
   - [ ] `GET /api/v1/chat/list` 接口
   - [ ] `GET /api/v1/chat/{chat_id}` 接口
-- [ ] 分页响应封装
-- [ ] 单元测试
+- [x] 分页响应封装
+- [x] 单元测试
 
 ---
 
@@ -307,12 +307,12 @@ yu-ai-agent-python/
 **前置依赖**：CHAT-002, MSG-001, AGENT-001
 
 **Java 端任务**：
-- [ ] 实现会话软删除
-- [ ] 实现级联软删除该会话下所有消息
-- [ ] 实现级联软删除该会话关联的 agent_task
-- [ ] 实现会话 Controller
-  - [ ] `DELETE /api/v1/chat/{chat_id}` 接口
-- [ ] 单元测试
+- [x] 实现会话软删除
+- [x] 实现级联软删除该会话下所有消息
+- [x] 实现级联软删除该会话关联的 agent_task
+- [x] 实现会话 Controller
+  - [x] `DELETE /api/v1/chat/{chat_id}` 接口
+- [x] 单元测试
 
 **说明**：删除会话时，该会话下的所有消息和关联的 agent_task 同步软删除
 

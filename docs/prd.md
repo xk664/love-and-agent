@@ -667,7 +667,7 @@ GET /api/v1/user/info
 **会话管理服务**
 ```java
 // 创建会话（含情感状态选择）
-POST /api/v1/chat/create
+POST /api/v1/chat/createk
 {
     "app_type": "love_app|manus",
     "emotion_status": "single|relationship|married",  // love_app 必填，manus 可传 null 或不传
