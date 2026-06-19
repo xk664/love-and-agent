@@ -1,0 +1,44 @@
+# Development Configuration
+
+app:
+  name: "Yu AI Agent"
+  version: "0.1.0"
+  debug: true
+  env: "dev"
+
+server:
+  ip: "106.53.178.125"
+
+database:
+  type: "mysql"
+  host: "106.53.178.125"
+  port: 13306
+  user: "root"
+  password: "123456"
+  name: "yu_agent_dev"
+  pool_size: 5
+  max_overflow: 10
+
+pgvector:
+  host: "106.53.178.125"
+  port: 5432
+  user: "root"
+  password: "123456"
+  database: "love_and_agent"
+  collection: "embeddings_dev"
+  dimension: 1536
+
+redis:
+  host: "106.53.178.125"
+  port: 16379
+  db: 0
+  password: ""
+
+dashscope:
+  model: "qwen-turbo"
+  embedding_model: "text-embedding-v2"
+
+rag:
+  chunk_size: 500
+  chunk_overlap: 50
+  top_k: 3

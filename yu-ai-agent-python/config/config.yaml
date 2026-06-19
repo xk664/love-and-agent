@@ -1,0 +1,68 @@
+# =============================================================================
+# Yu AI Agent - Project Level Configuration
+# Server: 106.53.178.125
+# Priority: Environment Variables > Config File > Default Values
+# =============================================================================
+
+app:
+  name: "Yu AI Agent"
+  version: "0.1.0"
+  debug: false
+  env: "dev"
+  host: "0.0.0.0"
+  port: 8000
+
+# Server Configuration
+server:
+  ip: "106.53.178.125"
+
+# Database Configuration (MySQL)
+database:
+  type: "mysql"
+  host: "106.53.178.125"
+  port: 13306
+  user: "root"
+  password: "123456"
+  name: "yu_agent"
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+
+# PgVector Configuration (PostgreSQL)
+pgvector:
+  host: "106.53.178.125"
+  port: 5432
+  user: "postgres"
+  password: ""
+  database: "yu_agent"
+  collection: "embeddings"
+  dimension: 1536
+
+# Redis Configuration
+redis:
+  host: "106.53.178.125"
+  port: 16379
+  db: 0
+  password: ""
+
+# DashScope API Configuration (Alibaba Cloud)
+dashscope:
+  model: "qwen-turbo"
+  embedding_model: "text-embedding-v2"
+
+# OpenAI API Configuration
+openai:
+  model: "gpt-4"
+  temperature: 0.7
+  max_tokens: 2000
+
+# RAG Configuration
+rag:
+  chunk_size: 500
+  chunk_overlap: 50
+  top_k: 5
+  similarity_threshold: 0.7
+
+# Authentication Configuration
+auth:
+  token_expire_minutes: 60
