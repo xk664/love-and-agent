@@ -52,3 +52,17 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.yuaiagent.service
+
+# Python 服务配置
+python:
+  service:
+    base-url: ${PYTHON_SERVICE_URL:http://localhost:8000}
+    connect-timeout: 5000
+    read-timeout: 30000
+    write-timeout: 30000
+    endpoints:
+      chat-sync: /internal/ai/love/chat/sync
+      chat-sse: /internal/ai/love/chat/sse
+      agent-run: /internal/agent/run
+      agent-cancel: /internal/agent/cancel
+      health: /internal/health
