@@ -81,3 +81,187 @@
 {"asctime": "2026-06-19 16:45:51,901", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 40, "message": "Shutting down application..."}
 {"asctime": "2026-06-19 16:45:51,948", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
 {"asctime": "2026-06-19 16:45:51,948", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 46, "message": "Database connections closed"}
+{"asctime": "2026-06-20 12:51:30,282", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 12:51:30,284", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 12:51:30,284", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 12:51:30,654", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 25, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 12:51:30,654", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Environment: dev"}
+{"asctime": "2026-06-20 12:51:30,654", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 12:51:32,033", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 12:51:33,264", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 12:51:33,264", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 33, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 12:52:38,953", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 40, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 12:52:38,993", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 12:52:38,993", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 46, "message": "Database connections closed"}
+{"asctime": "2026-06-20 13:45:35,765", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 13:45:35,765", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 13:45:35,765", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 13:45:36,508", "name": "app.ai.llm.dashscope_client", "levelname": "WARNING", "module": "dashscope_client", "funcName": "_configure", "lineno": 37, "message": "LLM API key not configured"}
+{"asctime": "2026-06-20 13:45:36,632", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 13:45:36,632", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 13:45:36,632", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 13:45:37,157", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 13:45:38,279", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 13:45:38,279", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 13:49:38,084", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 13:49:38,128", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 13:49:38,128", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 13:51:37,285", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 13:51:37,286", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 13:51:37,286", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 13:51:37,833", "name": "app.ai.llm.dashscope_client", "levelname": "WARNING", "module": "dashscope_client", "funcName": "_configure", "lineno": 37, "message": "LLM API key not configured"}
+{"asctime": "2026-06-20 13:51:37,936", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 13:51:37,937", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 13:51:37,937", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 13:51:38,457", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 13:51:39,562", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 13:51:39,562", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 13:52:52,529", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 13:52:52,575", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 13:52:52,576", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 13:52:53,593", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 13:52:53,593", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 13:52:53,593", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 13:52:54,127", "name": "app.ai.llm.dashscope_client", "levelname": "WARNING", "module": "dashscope_client", "funcName": "_configure", "lineno": 37, "message": "LLM API key not configured"}
+{"asctime": "2026-06-20 13:52:54,230", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 13:52:54,230", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 13:52:54,230", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 13:52:54,701", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 13:52:55,747", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 13:52:55,747", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 13:53:36,384", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 13:53:36,422", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 13:53:36,422", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 13:53:47,970", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 13:53:47,972", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 13:53:47,972", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 13:54:00,007", "name": "app.ai.llm.dashscope_client", "levelname": "WARNING", "module": "dashscope_client", "funcName": "_configure", "lineno": 37, "message": "LLM API key not configured"}
+{"asctime": "2026-06-20 13:54:01,243", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 13:54:01,244", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 13:54:01,244", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 13:54:06,786", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 13:54:07,884", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 13:54:07,885", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 13:54:33,903", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 13:54:34,054", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 13:54:34,054", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 14:00:40,307", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 14:00:40,308", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 14:00:40,308", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 14:00:40,876", "name": "app.ai.llm.dashscope_client", "levelname": "WARNING", "module": "dashscope_client", "funcName": "_configure", "lineno": 37, "message": "LLM API key not configured"}
+{"asctime": "2026-06-20 14:00:40,975", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 14:00:40,975", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 14:00:40,975", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 14:00:41,489", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 14:00:42,565", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 14:00:42,565", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 14:05:17,689", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 14:05:17,737", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 14:05:17,737", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 14:06:10,875", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 14:06:10,876", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 14:06:10,876", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 14:06:11,440", "name": "app.ai.llm.dashscope_client", "levelname": "WARNING", "module": "dashscope_client", "funcName": "_configure", "lineno": 37, "message": "LLM API key not configured"}
+{"asctime": "2026-06-20 14:06:11,542", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 14:06:11,542", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 14:06:11,542", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 14:06:12,077", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 14:06:13,258", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 14:06:13,258", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 14:06:37,038", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "sync_chat", "lineno": 96, "message": "Chat request: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565, history_count=1"}
+{"asctime": "2026-06-20 14:07:08,745", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 14:07:08,800", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 14:07:08,801", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 14:07:56,770", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 14:07:56,770", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 14:07:56,771", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 14:07:57,317", "name": "app.ai.llm.dashscope_client", "levelname": "WARNING", "module": "dashscope_client", "funcName": "_configure", "lineno": 37, "message": "LLM API key not configured"}
+{"asctime": "2026-06-20 14:07:57,416", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 14:07:57,416", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 14:07:57,416", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 14:07:57,930", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 14:07:59,178", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 14:07:59,178", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 14:08:14,761", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "sync_chat", "lineno": 96, "message": "Chat request: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565, history_count=1"}
+{"asctime": "2026-06-20 14:08:14,761", "name": "app.ai.llm.dashscope_client", "levelname": "ERROR", "module": "dashscope_client", "funcName": "chat", "lineno": 180, "message": "Chat failed: 'NoneType' object has no attribute 'chat'"}
+{"asctime": "2026-06-20 14:09:35,806", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 14:09:35,852", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 14:09:35,852", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 14:09:36,778", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 14:09:36,778", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 14:09:36,778", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 14:09:38,037", "name": "app.ai.llm.dashscope_client", "levelname": "INFO", "module": "dashscope_client", "funcName": "_configure", "lineno": 35, "message": "LLM client configured: base_url=https://token-plan-cn.xiaomimimo.com/v1"}
+{"asctime": "2026-06-20 14:09:38,134", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 14:09:38,134", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 14:09:38,134", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 14:09:38,635", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 14:09:39,751", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 14:09:39,752", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 14:09:48,765", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "sync_chat", "lineno": 96, "message": "Chat request: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565, history_count=1"}
+{"asctime": "2026-06-20 14:09:52,988", "name": "httpx", "levelname": "INFO", "module": "_client", "funcName": "_send_single_request", "lineno": 1025, "message": "HTTP Request: POST https://token-plan-cn.xiaomimimo.com/v1/chat/completions \"HTTP/1.1 200 OK\""}
+{"asctime": "2026-06-20 14:09:52,997", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "sync_chat", "lineno": 107, "message": "Chat response: user_id=1, content_length=223"}
+{"asctime": "2026-06-20 14:10:47,152", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 14:10:47,193", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 14:10:47,193", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 21:29:24,749", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 21:29:24,750", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 21:29:24,750", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 21:29:26,062", "name": "app.ai.llm.dashscope_client", "levelname": "INFO", "module": "dashscope_client", "funcName": "_configure", "lineno": 35, "message": "LLM client configured: base_url=https://token-plan-cn.xiaomimimo.com/v1"}
+{"asctime": "2026-06-20 21:29:26,212", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 21:29:26,212", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 21:29:26,212", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 21:29:27,601", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 21:29:28,952", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 21:29:28,952", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 21:33:13,686", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "stream_chat", "lineno": 136, "message": "SSE chat request: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565, history_count=3"}
+{"asctime": "2026-06-20 21:47:14,689", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "stream_chat", "lineno": 136, "message": "SSE chat request: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565, history_count=4"}
+{"asctime": "2026-06-20 21:48:48,788", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "stream_chat", "lineno": 136, "message": "SSE chat request: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565, history_count=5"}
+{"asctime": "2026-06-20 21:49:36,286", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 21:49:36,327", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 21:49:36,327", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 21:53:29,996", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 21:53:29,997", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 21:53:29,997", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 21:53:35,541", "name": "app.ai.llm.dashscope_client", "levelname": "INFO", "module": "dashscope_client", "funcName": "_configure", "lineno": 35, "message": "LLM client configured: base_url=https://token-plan-cn.xiaomimimo.com/v1"}
+{"asctime": "2026-06-20 21:53:35,862", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 21:53:35,863", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 21:53:35,863", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 21:53:37,616", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 21:53:39,504", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 21:53:39,504", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 21:53:45,113", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "stream_chat", "lineno": 136, "message": "SSE chat request: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565, history_count=6"}
+{"asctime": "2026-06-20 21:54:00,022", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 21:54:00,077", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 21:54:00,078", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 21:56:02,447", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 21:56:02,447", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 21:56:02,448", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 21:56:03,369", "name": "app.ai.llm.dashscope_client", "levelname": "INFO", "module": "dashscope_client", "funcName": "_configure", "lineno": 35, "message": "LLM client configured: base_url=https://token-plan-cn.xiaomimimo.com/v1"}
+{"asctime": "2026-06-20 21:56:03,435", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 21:56:03,435", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 21:56:03,435", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 21:56:03,952", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 21:56:06,364", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 21:56:06,364", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 21:56:12,524", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "stream_chat", "lineno": 136, "message": "SSE chat request: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565, history_count=7"}
+{"asctime": "2026-06-20 21:56:13,034", "name": "httpx", "levelname": "INFO", "module": "_client", "funcName": "_send_single_request", "lineno": 1025, "message": "HTTP Request: POST https://token-plan-cn.xiaomimimo.com/v1/chat/completions \"HTTP/1.1 200 OK\""}
+{"asctime": "2026-06-20 21:56:16,065", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "event_generator", "lineno": 180, "message": "SSE chat completed: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565"}
+{"asctime": "2026-06-20 21:59:25,081", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 21:59:25,214", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 21:59:25,214", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}
+{"asctime": "2026-06-20 21:59:26,258", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 122, "message": "Logging configured successfully"}
+{"asctime": "2026-06-20 21:59:26,258", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 123, "message": "Log level: INFO"}
+{"asctime": "2026-06-20 21:59:26,258", "name": "app.core.logging", "levelname": "INFO", "module": "logging", "funcName": "setup_logging", "lineno": 124, "message": "Log directory: D:\\xk\\project\\love-and-agent\\yu-ai-agent-python\\logs"}
+{"asctime": "2026-06-20 21:59:27,156", "name": "app.ai.llm.dashscope_client", "levelname": "INFO", "module": "dashscope_client", "funcName": "_configure", "lineno": 35, "message": "LLM client configured: base_url=https://token-plan-cn.xiaomimimo.com/v1"}
+{"asctime": "2026-06-20 21:59:27,216", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 26, "message": "Starting Yu AI Agent v0.1.0"}
+{"asctime": "2026-06-20 21:59:27,217", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 27, "message": "Environment: dev"}
+{"asctime": "2026-06-20 21:59:27,217", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 28, "message": "Debug mode: False"}
+{"asctime": "2026-06-20 21:59:27,681", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "get_engine", "lineno": 54, "message": "Async PgVector engine created"}
+{"asctime": "2026-06-20 21:59:29,095", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "init_db", "lineno": 100, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 21:59:29,095", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 34, "message": "PgVector database initialized"}
+{"asctime": "2026-06-20 21:59:59,384", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "stream_chat", "lineno": 136, "message": "SSE chat request: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565, history_count=8"}
+{"asctime": "2026-06-20 22:00:00,107", "name": "httpx", "levelname": "INFO", "module": "_client", "funcName": "_send_single_request", "lineno": 1025, "message": "HTTP Request: POST https://token-plan-cn.xiaomimimo.com/v1/chat/completions \"HTTP/1.1 200 OK\""}
+{"asctime": "2026-06-20 22:00:05,109", "name": "app.api.chat", "levelname": "INFO", "module": "chat", "funcName": "event_generator", "lineno": 180, "message": "SSE chat completed: user_id=1, chat_id=2bb61d19-8e9b-45f8-8df3-eb4f8ef8d565"}
+{"asctime": "2026-06-20 22:01:43,625", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 41, "message": "Shutting down application..."}
+{"asctime": "2026-06-20 22:01:43,722", "name": "app.ai.rag.vector_store", "levelname": "INFO", "module": "vector_store", "funcName": "close", "lineno": 218, "message": "Async PgVector engine disposed"}
+{"asctime": "2026-06-20 22:01:43,723", "name": "main", "levelname": "INFO", "module": "main", "funcName": "lifespan", "lineno": 47, "message": "Database connections closed"}

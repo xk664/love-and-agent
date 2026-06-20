@@ -255,6 +255,10 @@ class Settings:
         # DashScope overrides
         if yaml_config.get("dashscope"):
             ds_config = yaml_config["dashscope"]
+            if not os.getenv("DASHSCOPE_API_KEY") and "api_key" in ds_config:
+                self.dashscope.DASHSCOPE_API_KEY = ds_config["api_key"]
+            if not os.getenv("DASHSCOPE_BASE_URL") and "base_url" in ds_config:
+                self.dashscope.DASHSCOPE_BASE_URL = ds_config["base_url"]
             if not os.getenv("DASHSCOPE_MODEL") and "model" in ds_config:
                 self.dashscope.DASHSCOPE_MODEL = ds_config["model"]
             if not os.getenv("DASHSCOPE_EMBEDDING_MODEL") and "embedding_model" in ds_config:

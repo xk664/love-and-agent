@@ -1,4 +1,4 @@
-# AI 超级智能体系统 - 分模块开发流程
+    # AI 超级智能体系统 - 分模块开发流程
 
 > **项目名称**：AI 超级智能体系统
 > **技术架构**：Java + Python 完全分离微服务架构
@@ -353,13 +353,13 @@ yu-ai-agent-python/
 **前置依赖**：MSG-001
 
 **Java 端任务**：
-- [ ] 实现跨会话记忆窗口（最近20条消息）
+- [x] 实现跨会话记忆窗口（最近20条消息）
   - [ ] 查询同一用户所有会话的最近20条消息
   - [ ] 不分 app_type
   - [ ] 用户+AI 消息总和
-- [ ] 组装对话上下文
+- [x] 组装对话上下文
   - [ ] 格式：[{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
-- [ ] 单元测试
+- [x] 单元测试
 
 ---
 
@@ -370,7 +370,7 @@ yu-ai-agent-python/
 **前置依赖**：MSG-002, PYTHON-001
 
 **Java 端任务**：
-- [ ] 实现 HTTP 客户端调用 Python 服务
+- [x] 实现 HTTP 客户端调用 Python 服务
   - [ ] 配置 Python 服务地址和超时时间
   - [ ] 传递 X-User-Id 请求头
   - [ ] 传递对话上下文（含跨会话记忆）
@@ -380,15 +380,15 @@ yu-ai-agent-python/
   - [ ] 调用 Python 服务
   - [ ] 保存用户消息和 AI 消息
   - [ ] 返回结果
-- [ ] 实现对话 Controller
-  - [ ] `POST /api/v1/ai/love/chat/sync` 接口
+- [x] 实现对话 Controller
+  - [x] `POST /api/v1/ai/love/chat/sync` 接口
 - [ ] 单元测试
 
 **Python 端任务**：
-- [ ] 实现同步对话接口 `/internal/ai/love/chat/sync`
-- [ ] 接收请求参数（message, chat_id, emotion_status, history）
-- [ ] 调用 LLM 模型
-- [ ] 返回 AI 回复和 metadata
+- [x] 实现同步对话接口 `/internal/ai/love/chat/sync`
+- [x] 接收请求参数（message, chat_id, emotion_status, history）
+- [x] 调用 LLM 模型
+- [x] 返回 AI 回复和 metadata
 
 ---
 
@@ -399,26 +399,26 @@ yu-ai-agent-python/
 **前置依赖**：MSG-002, PYTHON-001
 
 **Java 端任务**：
-- [ ] 实现 SSE 流式响应
-  - [ ] 配置 SSE 相关依赖
-  - [ ] 实现流式转发逻辑
-- [ ] 实现对话 Controller
-  - [ ] `POST /api/v1/ai/love/chat/sse` 接口（POST 方法）
-- [ ] 处理 SSE 消息类型
-  - [ ] thinking: AI 思考过程
-  - [ ] tool_call: 工具调用请求
-  - [ ] tool_result: 工具执行结果
-  - [ ] answer: 完整句子回复
-  - [ ] metadata: 消息元数据（流结束前发送）
-  - [ ] [DONE]: 结束标记
-- [ ] 保存对话历史（流结束后）
-- [ ] 单元测试
+- [x] 实现 SSE 流式响应
+  - [x] 配置 SSE 相关依赖
+  - [x] 实现流式转发逻辑
+- [x] 实现对话 Controller
+  - [x] `POST /api/v1/ai/love/chat/sse` 接口（POST 方法）
+- [x] 处理 SSE 消息类型
+  - [x] thinking: AI 思考过程
+  - [x] tool_call: 工具调用请求
+  - [x] tool_result: 工具执行结果
+  - [x] answer: 完整句子回复
+  - [x] metadata: 消息元数据（流结束前发送）
+  - [x] [DONE]: 结束标记
+- [x] 保存对话历史（流结束后）
+- [x] 单元测试
 
 **Python 端任务**：
-- [ ] 实现流式对话接口 `/internal/ai/love/chat/sse`
-- [ ] 实现 SSE 流式响应
-- [ ] 返回完整句子（非单个 token）
-- [ ] 流结束前返回 metadata 事件
+- [x] 实现流式对话接口 `/internal/ai/love/chat/sse`
+- [x] 实现 SSE 流式响应
+- [x] 返回完整句子（非单个 token）
+- [x] 流结束前返回 metadata 事件
 
 **SSE 格式参考 PRD 第7.3节**
 

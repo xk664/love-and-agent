@@ -35,7 +35,9 @@ redis:
   password: ""
 
 dashscope:
-  model: "qwen-turbo"
+  api_key: "tp-c6zyh3676hnbqmf0jokgu6q3yllebvgzbuom10gc2quidhbl"
+  model: "mimo-v2.5"
+  base_url: "https://token-plan-cn.xiaomimimo.com/v1"
   embedding_model: "text-embedding-v2"
 
 rag:

@@ -69,65 +69,6 @@ async def get_current_token(credentials: Optional[HTTPAuthorizationCredentials] 
     return token
 
 
-class InternalTokenMiddleware:
-    """
-    Middleware for internal token authentication.
-    Protects internal endpoints.
-    """
-
-    def __init__(self, app):
-        self.app = app
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] == "http":
-            request = Request(scope, receive)
-
-            # Skip auth for public endpoints
-            if self._is_public_endpoint(request.url.path):
-                return await self.app(scope, receive, send)
-
-            # Get token from header
-            auth_header = request.headers.get("Authorization", "")
-            if auth_header.startswith("Bearer "):
-                token = auth_header[7:]
-                if verify_token(token):
-                    return await self.app(scope, receive, send)
-
-            # Check internal token header
-            internal_token = request.headers.get("X-Internal-Token", "")
-            if internal_token and verify_token(internal_token):
-                return await self.app(scope, receive, send)
-
-            # Token invalid or missing
-            response = HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or missing authentication token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-            from starlette.responses import JSONResponse
-            error_response = JSONResponse(
-                status_code=response.status_code,
-                content={"detail": response.detail},
-                headers=response.headers
-            )
-            await error_response(scope, receive, send)
-            return
-
-        return await self.app(scope, receive, send)
-
-    @staticmethod
-    def _is_public_endpoint(path: str) -> bool:
-        """Check if endpoint is public (no auth required)"""
-        public_paths = [
-            "/health",
-            "/internal/health",
-            "/docs",
-            "/openapi.json",
-            "/redoc",
-        ]
-        return any(path.startswith(p) for p in public_paths)
-
-
 def require_auth(credentials: HTTPAuthorizationCredentials = security):
     """
     Dependency for protected endpoints.

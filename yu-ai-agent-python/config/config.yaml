@@ -47,7 +47,7 @@ redis:
 
 # DashScope API Configuration (Alibaba Cloud)
 dashscope:
-  model: "qwen-turbo"
+  model: "mimo-v2.5"
   embedding_model: "text-embedding-v2"
 
 # OpenAI API Configuration

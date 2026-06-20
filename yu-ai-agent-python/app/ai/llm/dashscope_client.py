@@ -1,10 +1,10 @@
 """
-DashScope API Client Configuration
+LLM Client - OpenAI Compatible API Client
+Supports MiMo and other OpenAI-compatible APIs
 """
-from typing import List, Optional
+from typing import List, Optional, Generator
 
-import dashscope
-from dashscope import TextEmbedding, Generation
+from openai import OpenAI
 
 from app.core.config import settings
 from app.core.logging import get_logger
@@ -14,22 +14,29 @@ logger = get_logger(__name__)
 
 class DashScopeClient:
     """
-    DashScope API Client
-    Handles LLM and Embedding operations via DashScope
+    LLM Client using OpenAI-compatible API
+    Supports MiMo, DashScope, and other compatible endpoints
     """
 
     def __init__(self):
+        self._client = None
         self._configure()
 
     def _configure(self):
-        """Configure DashScope API"""
-        if settings.dashscope.DASHSCOPE_API_KEY:
-            dashscope.api_key = settings.dashscope.DASHSCOPE_API_KEY
-            logger.info("DashScope API configured")
-        else:
-            logger.warning("DashScope API key not configured")
+        """Configure OpenAI-compatible client"""
+        api_key = settings.dashscope.DASHSCOPE_API_KEY
+        base_url = settings.dashscope.DASHSCOPE_BASE_URL
 
-    async def generate_text(
+        if api_key:
+            self._client = OpenAI(
+                api_key=api_key,
+                base_url=base_url,
+            )
+            logger.info(f"LLM client configured: base_url={base_url}")
+        else:
+            logger.warning("LLM API key not configured")
+
+    def generate_text(
         self,
         prompt: str,
         model: Optional[str] = None,
@@ -39,7 +46,7 @@ class DashScopeClient:
         **kwargs
     ) -> str:
         """
-        Generate text using DashScope LLM
+        Generate text using LLM
 
         Args:
             prompt: User prompt
@@ -58,36 +65,29 @@ class DashScopeClient:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
 
-            response = Generation.call(
+            response = self._client.chat.completions.create(
                 model=model,
                 messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                result_format="message",
-                **kwargs
             )
 
-            if response.status_code == 200:
-                content = response.output.choices[0].message.content
-                logger.debug(f"Generated text with model {model}")
-                return content
-            else:
-                error_msg = f"DashScope API error: {response.code} - {response.message}"
-                logger.error(error_msg)
-                raise Exception(error_msg)
+            content = response.choices[0].message.content
+            logger.debug(f"Generated text with model {model}")
+            return content
 
         except Exception as e:
             logger.error(f"Text generation failed: {str(e)}")
             raise
 
-    async def get_embedding(
+    def get_embedding(
         self,
         text: str,
         model: Optional[str] = None,
         **kwargs
     ) -> List[float]:
         """
-        Get text embedding using DashScope
+        Get text embedding
 
         Args:
             text: Input text
@@ -96,26 +96,20 @@ class DashScopeClient:
         model = model or settings.dashscope.DASHSCOPE_EMBEDDING_MODEL
 
         try:
-            response = TextEmbedding.call(
+            response = self._client.embeddings.create(
                 model=model,
                 input=text,
-                **kwargs
             )
 
-            if response.status_code == 200:
-                embedding = response.output["embeddings"][0]["embedding"]
-                logger.debug(f"Generated embedding with model {model}")
-                return embedding
-            else:
-                error_msg = f"DashScope embedding error: {response.code} - {response.message}"
-                logger.error(error_msg)
-                raise Exception(error_msg)
+            embedding = response.data[0].embedding
+            logger.debug(f"Generated embedding with model {model}")
+            return embedding
 
         except Exception as e:
             logger.error(f"Embedding generation failed: {str(e)}")
             raise
 
-    async def get_embeddings_batch(
+    def get_embeddings_batch(
         self,
         texts: List[str],
         model: Optional[str] = None,
@@ -131,26 +125,20 @@ class DashScopeClient:
         model = model or settings.dashscope.DASHSCOPE_EMBEDDING_MODEL
 
         try:
-            response = TextEmbedding.call(
+            response = self._client.embeddings.create(
                 model=model,
                 input=texts,
-                **kwargs
             )
 
-            if response.status_code == 200:
-                embeddings = [item["embedding"] for item in response.output["embeddings"]]
-                logger.debug(f"Generated {len(embeddings)} embeddings with model {model}")
-                return embeddings
-            else:
-                error_msg = f"DashScope batch embedding error: {response.code} - {response.message}"
-                logger.error(error_msg)
-                raise Exception(error_msg)
+            embeddings = [item.embedding for item in response.data]
+            logger.debug(f"Generated {len(embeddings)} embeddings with model {model}")
+            return embeddings
 
         except Exception as e:
             logger.error(f"Batch embedding generation failed: {str(e)}")
             raise
 
-    async def chat(
+    def chat(
         self,
         messages: List[dict],
         model: Optional[str] = None,
@@ -160,7 +148,7 @@ class DashScopeClient:
         **kwargs
     ):
         """
-        Chat completion using DashScope
+        Chat completion
 
         Args:
             messages: List of message dicts with 'role' and 'content'
@@ -174,38 +162,41 @@ class DashScopeClient:
         max_tokens = max_tokens or settings.openai.OPENAI_MAX_TOKENS
 
         try:
-            response = Generation.call(
+            if stream:
+                return self._chat_stream(model, messages, temperature, max_tokens)
+
+            response = self._client.chat.completions.create(
                 model=model,
                 messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                result_format="message",
-                stream=stream,
-                **kwargs
+                stream=False,
             )
-
-            if stream:
-                # Return generator for streaming
-                for chunk in response:
-                    if chunk.status_code == 200:
-                        content = chunk.output.choices[0].message.content
-                        yield content
-                    else:
-                        raise Exception(f"Stream error: {chunk.code}")
-            else:
-                if response.status_code == 200:
-                    content = response.output.choices[0].message.content
-                    logger.debug(f"Chat completed with model {model}")
-                    return content
-                else:
-                    error_msg = f"DashScope chat error: {response.code} - {response.message}"
-                    logger.error(error_msg)
-                    raise Exception(error_msg)
+            content = response.choices[0].message.content
+            logger.debug(f"Chat completed with model {model}")
+            return content
 
         except Exception as e:
             logger.error(f"Chat failed: {str(e)}")
             raise
 
+    def _chat_stream(self, model, messages, temperature, max_tokens):
+        """Streaming chat - separate method to avoid turning chat() into a generator"""
+        try:
+            response = self._client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stream=True,
+            )
+            for chunk in response:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        except Exception as e:
+            logger.error(f"Stream chat failed: {str(e)}")
+            raise
 
-# Global DashScope client instance
+
+# Global client instance
 dashscope_client = DashScopeClient()
