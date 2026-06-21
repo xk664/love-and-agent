@@ -83,3 +83,22 @@ CREATE TABLE `agent_task` (
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_chat_id` (`chat_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='智能体任务表';
+
+-- ============================================================
+-- 知识库文档表
+-- ============================================================
+DROP TABLE IF EXISTS `knowledge_document`;
+CREATE TABLE `knowledge_document` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `user_id` BIGINT NOT NULL COMMENT '文档所属用户ID，实现用户隔离',
+    `title` VARCHAR(255) NOT NULL COMMENT '文档标题，自动从上传文件名提取',
+    `content` LONGTEXT COMMENT '文档内容，直接存储在数据库中',
+    `file_type` VARCHAR(20) NOT NULL COMMENT 'markdown | pdf | txt',
+    `status` TINYINT DEFAULT 0 COMMENT '0-待处理 1-已向量化 2-处理失败',
+    `is_deleted` TINYINT DEFAULT 0 COMMENT '0-未删除 1-已删除',
+    `vector_deleted` TINYINT DEFAULT 0 COMMENT '向量是否已清理：0-未清理 1-已清理',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_deleted_vector` (`is_deleted`, `vector_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='知识库文档表';

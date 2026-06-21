@@ -20,10 +20,12 @@ class DashScopeClient:
 
     def __init__(self):
         self._client = None
+        self._embedding_client = None
         self._configure()
 
     def _configure(self):
         """Configure OpenAI-compatible client"""
+        # 聊天模型客户端（MiMo）
         api_key = settings.dashscope.DASHSCOPE_API_KEY
         base_url = settings.dashscope.DASHSCOPE_BASE_URL
 
@@ -35,6 +37,19 @@ class DashScopeClient:
             logger.info(f"LLM client configured: base_url={base_url}")
         else:
             logger.warning("LLM API key not configured")
+
+        # Embedding 专用客户端（DeepSeek）
+        embedding_api_key = settings.dashscope.embedding_api_key
+        embedding_base_url = settings.dashscope.embedding_base_url
+
+        if embedding_api_key:
+            self._embedding_client = OpenAI(
+                api_key=embedding_api_key,
+                base_url=embedding_base_url,
+            )
+            logger.info(f"Embedding client configured: base_url={embedding_base_url}")
+        else:
+            logger.warning("Embedding API key not configured")
 
     def generate_text(
         self,
@@ -94,9 +109,10 @@ class DashScopeClient:
             model: Embedding model name (default: from config)
         """
         model = model or settings.dashscope.DASHSCOPE_EMBEDDING_MODEL
+        client = self._embedding_client or self._client
 
         try:
-            response = self._client.embeddings.create(
+            response = client.embeddings.create(
                 model=model,
                 input=text,
             )
@@ -123,9 +139,10 @@ class DashScopeClient:
             model: Embedding model name (default: from config)
         """
         model = model or settings.dashscope.DASHSCOPE_EMBEDDING_MODEL
+        client = self._embedding_client or self._client
 
         try:
-            response = self._client.embeddings.create(
+            response = client.embeddings.create(
                 model=model,
                 input=texts,
             )

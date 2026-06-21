@@ -3,7 +3,7 @@ PgVector Configuration and Vector Store Manager
 """
 from typing import List, Optional
 
-from sqlalchemy import Column, Integer, String, Text, create_engine
+from sqlalchemy import Column, Integer, String, Text, JSON, create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from pgvector.sqlalchemy import Vector
@@ -23,7 +23,7 @@ class Embedding(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     content = Column(Text, nullable=False)
-    metadata_json = Column(String, name="metadata")
+    metadata_json = Column(JSON, name="metadata")
     embedding = Column(Vector(settings.pgvector.PGVECTOR_DIMENSION))
     collection = Column(String, index=True, default="default")
 
@@ -95,8 +95,17 @@ class VectorStoreManager:
             await conn.execute(
                 text("CREATE EXTENSION IF NOT EXISTS vector")
             )
+            # Enable pg_trgm extension for keyword search
+            await conn.execute(
+                text("CREATE EXTENSION IF NOT EXISTS pg_trgm")
+            )
             # Create tables
             await conn.run_sync(Base.metadata.create_all)
+            # Create GIN index for trigram similarity search
+            await conn.execute(text("""
+                CREATE INDEX IF NOT EXISTS idx_embeddings_content_trgm
+                ON embeddings USING gin (content gin_trgm_ops)
+            """))
         logger.info("PgVector database initialized")
 
     async def add_embedding(
@@ -112,7 +121,7 @@ class VectorStoreManager:
                 db_embedding = Embedding(
                     content=content,
                     embedding=embedding,
-                    metadata_json=str(metadata) if metadata else None,
+                    metadata_json=metadata,
                     collection=collection
                 )
                 session.add(db_embedding)
@@ -219,6 +228,126 @@ class VectorStoreManager:
         if self._engine:
             self._engine.dispose()
             logger.info("Sync PgVector engine disposed")
+
+    async def keyword_search(
+        self,
+        query: str,
+        user_id: int,
+        top_k: int = 5
+    ) -> List[dict]:
+        """Keyword search using pg_trgm similarity"""
+        from sqlalchemy import text
+
+        async with AsyncSession(self.get_engine(async_mode=True)) as session:
+            stmt = text("""
+                SELECT
+                    id,
+                    content,
+                    metadata,
+                    similarity(content, :query) AS similarity
+                FROM embeddings
+                WHERE metadata->>'user_id' = :user_id
+                  AND similarity(content, :query) > 0.05
+                ORDER BY similarity DESC
+                LIMIT :top_k
+            """)
+
+            result = await session.execute(
+                stmt,
+                {
+                    "query": query,
+                    "user_id": str(user_id),
+                    "top_k": top_k
+                }
+            )
+
+            rows = result.fetchall()
+            return [
+                {
+                    "id": row[0],
+                    "content": row[1],
+                    "metadata": row[2],
+                    "similarity": float(row[3])
+                }
+                for row in rows
+            ]
+
+    async def hybrid_search(
+        self,
+        query: str,
+        query_embedding: List[float],
+        user_id: int,
+        top_k: int = 5,
+        similarity_threshold: float = 0.7
+    ) -> List[dict]:
+        """Hybrid search combining vector similarity and keyword matching with RRF"""
+        from sqlalchemy import text
+
+        # Step 1: Vector search by user_id
+        async with AsyncSession(self.get_engine(async_mode=True)) as session:
+            vector_stmt = text("""
+                SELECT
+                    id, content, metadata,
+                    1 - (embedding <=> :query_embedding) AS similarity
+                FROM embeddings
+                WHERE metadata->>'user_id' = :user_id
+                  AND 1 - (embedding <=> :query_embedding) >= :threshold
+                ORDER BY embedding <=> :query_embedding
+                LIMIT :top_k
+            """)
+            vector_result = await session.execute(vector_stmt, {
+                "query_embedding": str(query_embedding),
+                "user_id": str(user_id),
+                "threshold": similarity_threshold,
+                "top_k": top_k * 2
+            })
+            vector_rows = vector_result.fetchall()
+
+        # Step 2: Keyword search by user_id
+        keyword_results = await self.keyword_search(query, user_id, top_k * 2)
+
+        # Step 3: RRF fusion
+        RRF_K = 60
+        merged = {}
+
+        for rank, row in enumerate(vector_rows):
+            chunk_id = row[0]
+            merged[chunk_id] = {
+                "id": chunk_id,
+                "content": row[1],
+                "metadata": row[2],
+                "vector_rank": rank,
+                "keyword_rank": None,
+                "rrf_score": 1.0 / (RRF_K + rank)
+            }
+
+        for rank, item in enumerate(keyword_results):
+            chunk_id = item["id"]
+            if chunk_id in merged:
+                merged[chunk_id]["keyword_rank"] = rank
+                merged[chunk_id]["rrf_score"] += 1.0 / (RRF_K + rank)
+            else:
+                merged[chunk_id] = {
+                    "id": chunk_id,
+                    "content": item["content"],
+                    "metadata": item["metadata"],
+                    "vector_rank": None,
+                    "keyword_rank": rank,
+                    "rrf_score": 1.0 / (RRF_K + rank)
+                }
+
+        # Step 4: Sort by rrf_score descending, return top_k
+        results = sorted(merged.values(), key=lambda x: x["rrf_score"], reverse=True)[:top_k]
+
+        return [
+            {
+                "id": item["id"],
+                "content": item["content"],
+                "metadata": item["metadata"],
+                "similarity": round(item["rrf_score"], 6)
+            }
+            for item in results
+        ]
 
 
 # Global vector store instance

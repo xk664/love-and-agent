@@ -12,6 +12,18 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
 
+  # PgVector (PostgreSQL)
+  pgvector:
+    driver-class-name: org.postgresql.Driver
+    jdbc-url: jdbc:postgresql://${PGVECTOR_HOST:106.53.178.125}:${PGVECTOR_PORT:5432}/${PGVECTOR_DATABASE:love_and_agent}
+    username: ${PGVECTOR_USERNAME:root}
+    password: ${PGVECTOR_PASSWORD:123456}
+    minimum-idle: 2
+    maximum-pool-size: 10
+    idle-timeout: 30000
+    max-lifetime: 1800000
+    connection-timeout: 30000
+
   # Redis
   data:
     redis:
@@ -65,4 +77,10 @@ python:
       chat-sse: /internal/ai/love/chat/sse
       agent-run: /internal/agent/run
       agent-cancel: /internal/agent/cancel
+      knowledge-index: /internal/knowledge/index
       health: /internal/health
+
+# 内部回调认证配置
+internal:
+  callback:
+    token: ${INTERNAL_CALLBACK_TOKEN:}

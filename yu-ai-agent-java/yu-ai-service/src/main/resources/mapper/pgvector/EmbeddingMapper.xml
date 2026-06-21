@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuaiagent.service.knowledge.pgvector.mapper.EmbeddingMapper">
+
+    <!-- 删除指定 collection 的所有向量 -->
+    <delete id="deleteByCollection">
+        DELETE FROM embeddings
+        WHERE collection = #{collection}
+    </delete>
+
+    <!-- 统计指定 collection 的向量数量 -->
+    <select id="countByCollection" resultType="int">
+        SELECT COUNT(*)
+        FROM embeddings
+        WHERE collection = #{collection}
+    </select>
+
+</mapper>

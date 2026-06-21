@@ -11,6 +11,7 @@ from app.core.logging import get_logger, setup_logging
 
 from app.api.health import router as health_router
 from app.api.chat import router as chat_router
+from app.api.knowledge import router as knowledge_router
 
 # Setup logging first
 logger = get_logger(__name__)
@@ -72,6 +73,7 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(health_router, tags=["health"])
     app.include_router(chat_router, tags=["chat"])
+    app.include_router(knowledge_router, tags=["knowledge"])
 
     return app
 

@@ -131,6 +131,18 @@ class DashScopeSettings(BaseSettings):
     DASHSCOPE_MODEL: str = Field(default="qwen-turbo")
     DASHSCOPE_EMBEDDING_MODEL: str = Field(default="text-embedding-v2")
     DASHSCOPE_BASE_URL: str = Field(default="https://dashscope.aliyuncs.com/api/v1")
+    DASHSCOPE_EMBEDDING_API_KEY: str = Field(default="")
+    DASHSCOPE_EMBEDDING_BASE_URL: str = Field(default="")
+
+    @property
+    def embedding_api_key(self) -> str:
+        """Embedding 专用 API Key，未配置时回退到通用 Key"""
+        return self.DASHSCOPE_EMBEDDING_API_KEY or self.DASHSCOPE_API_KEY
+
+    @property
+    def embedding_base_url(self) -> str:
+        """Embedding 专用 Base URL，未配置时回退到通用 URL"""
+        return self.DASHSCOPE_EMBEDDING_BASE_URL or self.DASHSCOPE_BASE_URL
 
     class Config:
         env_prefix = "DASHSCOPE_"
@@ -176,6 +188,21 @@ class RAGSettings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
+class CallbackSettings(BaseSettings):
+    """Java Callback Settings"""
+    CALLBACK_BASE_URL: str = Field(default="http://localhost:8081")
+    CALLBACK_TOKEN: str = Field(default="")
+
+    @property
+    def knowledge_callback_url(self) -> str:
+        return f"{self.CALLBACK_BASE_URL}/api/v1/internal/callback/knowledge/document"
+
+    class Config:
+        env_prefix = "CALLBACK_"
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 class Settings:
     """
     Main Settings Manager
@@ -191,6 +218,7 @@ class Settings:
         self.openai = OpenAISettings()
         self.auth = AuthSettings()
         self.rag = RAGSettings()
+        self.callback = CallbackSettings()
 
         # Load and apply YAML overrides
         self._apply_yaml_overrides()
@@ -263,6 +291,10 @@ class Settings:
                 self.dashscope.DASHSCOPE_MODEL = ds_config["model"]
             if not os.getenv("DASHSCOPE_EMBEDDING_MODEL") and "embedding_model" in ds_config:
                 self.dashscope.DASHSCOPE_EMBEDDING_MODEL = ds_config["embedding_model"]
+            if not os.getenv("DASHSCOPE_EMBEDDING_API_KEY") and "embedding_api_key" in ds_config:
+                self.dashscope.DASHSCOPE_EMBEDDING_API_KEY = ds_config["embedding_api_key"]
+            if not os.getenv("DASHSCOPE_EMBEDDING_BASE_URL") and "embedding_base_url" in ds_config:
+                self.dashscope.DASHSCOPE_EMBEDDING_BASE_URL = ds_config["embedding_base_url"]
 
         # RAG overrides
         if yaml_config.get("rag"):
@@ -273,6 +305,14 @@ class Settings:
                 self.rag.RAG_CHUNK_OVERLAP = rag_config["chunk_overlap"]
             if not os.getenv("RAG_TOP_K") and "top_k" in rag_config:
                 self.rag.RAG_TOP_K = rag_config["top_k"]
+
+        # Callback overrides
+        if yaml_config.get("callback"):
+            cb_config = yaml_config["callback"]
+            if not os.getenv("CALLBACK_BASE_URL") and "base_url" in cb_config:
+                self.callback.CALLBACK_BASE_URL = cb_config["base_url"]
+            if not os.getenv("CALLBACK_TOKEN") and "token" in cb_config:
+                self.callback.CALLBACK_TOKEN = cb_config["token"]
 
     def get_db_url(self, async_mode: bool = True) -> str:
         """Get database URL"""

@@ -467,12 +467,12 @@ yu-ai-agent-python/
 **前置依赖**：KNOW-001
 
 **Java 端任务**：
-- [ ] 实现文档列表查询
-  - [ ] 分页查询
-  - [ ] 仅返回当前用户的文档（user_id 隔离）
-- [ ] 实现文档 Controller
-  - [ ] `GET /api/v1/knowledge/documents` 接口
-- [ ] 单元测试
+- [x] 实现文档列表查询
+  - [x] 分页查询
+  - [x] 仅返回当前用户的文档（user_id 隔离）
+- [x] 实现文档 Controller
+  - [x] `GET /api/v1/knowledge/documents` 接口
+- [x] 单元测试
 
 ---
 
@@ -483,11 +483,11 @@ yu-ai-agent-python/
 **前置依赖**：KNOW-001
 
 **Java 端任务**：
-- [ ] 实现文档软删除（is_deleted 字段）
-- [ ] 校验文档所属用户（只能删除自己的文档）
-- [ ] 实现文档 Controller
-  - [ ] `DELETE /api/v1/knowledge/document/{id}` 接口
-- [ ] 单元测试
+- [x] 实现文档软删除（is_deleted 字段）
+- [x] 校验文档所属用户（只能删除自己的文档）
+- [x] 实现文档 Controller
+  - [x] `DELETE /api/v1/knowledge/document/{id}` 接口
+- [x] 单元测试
 
 ---
 

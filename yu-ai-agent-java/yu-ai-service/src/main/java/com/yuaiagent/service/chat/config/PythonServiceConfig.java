@@ -63,6 +63,11 @@ public class PythonServiceConfig {
          * 健康检查端点
          */
         private String health = "/internal/health";
+
+        /**
+         * 知识库文档向量化端点
+         */
+        private String knowledgeIndex = "/internal/knowledge/index";
     }
 
 }
