@@ -11,14 +11,10 @@
             "id": "102197b57d891e0d",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "tasks.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "tasks"
+              "title": "新标签页"
             }
           }
         ]
@@ -78,7 +74,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "7e4c7e2514ae2588",
@@ -156,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "tasks.md",
+                "file": "rag.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tasks 的大纲"
+              "title": "rag 的大纲"
             }
           }
         ],
@@ -170,7 +167,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -185,10 +183,12 @@
   },
   "active": "102197b57d891e0d",
   "lastOpenFiles": [
+    "rag.md",
     "chunk分块.md",
-    "chunking-design.md",
-    "javaToPy.md",
     "tasks.md",
+    "chunk.md",
+    "javaToPy.md",
+    "chunking-design.md",
     "TODO.md",
     "prd.md",
     "tasks.md.tmp.13688.62843e9d9fc9",
