@@ -77,7 +77,7 @@ async def upload_document(
     logger.info(f"Document saved: id={doc_id}, user={user_id}, file={filename}")
 
     # 5. 异步向量化（不阻塞请求）
-    asyncio.create_task(_vectorize_document(doc_id, user_id, text_content, filename))
+    asyncio.create_task(_vectorize_document(doc_id, user_id, text_content, filename, file_content))
 
     return _to_response(doc)
 
@@ -87,6 +87,7 @@ async def _vectorize_document(
     user_id: int,
     text_content: str,
     filename: str,
+    file_content: bytes = None,
 ):
     """
     异步向量化文档（后台任务）
@@ -100,8 +101,8 @@ async def _vectorize_document(
         from app.core.database import async_session
         db = async_session()
 
-        # 1. 文本分块
-        chunks = split_text(text_content)
+        # 1. 文本分块（携带文件名和原始内容，用于 PDF 特殊处理）
+        chunks = split_text(text_content, filename=filename, file_content=file_content)
         if not chunks:
             await _update_status(db, document_id, STATUS_FAILED)
             logger.warning(f"No chunks generated for document {document_id}")

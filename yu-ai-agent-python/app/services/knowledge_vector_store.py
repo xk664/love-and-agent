@@ -54,6 +54,8 @@ async def add_chunks(
                 "knowledge",
             ))
 
+        logger.info(f"Inserting {len(records)} chunks for document {document_id} into {_get_dsn()}")
+
         await conn.executemany(
             """
             INSERT INTO embeddings (content, metadata, embedding, collection)
@@ -62,6 +64,13 @@ async def add_chunks(
             records,
         )
         logger.info(f"Inserted {len(records)} chunks for document {document_id}")
+
+        # 验证插入
+        count = await conn.fetchval(
+            "SELECT COUNT(*) FROM embeddings WHERE metadata->>'document_id' = $1",
+            str(document_id),
+        )
+        logger.info(f"Verified: {count} chunks exist for document {document_id}")
     finally:
         await conn.close()
 

@@ -45,6 +45,10 @@ python-multipart==0.0.18
 python-json-logger==3.2.1
 PyPDF2==3.0.1
 
+# PDF Parser (better than PyPDF2)
+PyMuPDF==1.24.14
+pdfplumber==0.11.4
+
 # Testing
 pytest==8.3.4
 pytest-asyncio==0.25.0
