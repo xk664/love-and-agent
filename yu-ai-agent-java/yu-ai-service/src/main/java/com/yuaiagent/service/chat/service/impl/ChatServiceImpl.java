@@ -7,7 +7,7 @@ import com.yuaiagent.common.response.PageResponse;
 import com.yuaiagent.service.chat.dto.ChatListRequest;
 import com.yuaiagent.service.chat.dto.ChatResponse;
 import com.yuaiagent.service.chat.dto.CreateChatRequest;
-import com.yuaiagent.service.chat.mapper.AgentTaskMapper;
+import com.yuaiagent.service.agent.mapper.AgentTaskMapper;
 import com.yuaiagent.service.chat.mapper.ChatMapper;
 import com.yuaiagent.service.chat.mapper.MessageMapper;
 import com.yuaiagent.service.chat.model.AgentTask;

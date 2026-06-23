@@ -1,0 +1,22 @@
+# MCP (Model Context Protocol) 配置
+# 文档: https://modelcontextprotocol.io/
+
+mcp:
+  enabled: true
+  servers:
+    # Pexels 图片搜索服务
+    # 需要在 https://www.pexels.com/api/ 申请 API Key
+    - name: pexels
+      transport: sse
+      url: https://mcp.pexels.com/sse
+      enabled: true
+      timeout: 30
+      env:
+        PEXELS_API_KEY: wHWsKipdbIgwc5JRgZCFIPZICsFm1SpzRoyLfjvfx4AgeSBwdbxVTnvb  # 从环境变量读取
+
+    # 示例: Stdio 模式的 MCP 服务器
+    # - name: filesystem
+    #   transport: stdio
+    #   command: npx
+    #   args: ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/dir"]
+    #   enabled: false

@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +46,16 @@ public class UserController {
     @PostMapping("/login")
     public Result<LoginResponse> login(@RequestBody LoginRequest request) {
         LoginResponse response = userService.login(request);
+        return Result.success(response);
+    }
+
+    /**
+     * 获取当前用户信息
+     */
+    @Operation(summary = "获取当前用户信息")
+    @GetMapping("/info")
+    public Result<UserInfoResponse> getUserInfo(@RequestAttribute("currentUserId") Long userId) {
+        UserInfoResponse response = userService.getUserInfo(userId);
         return Result.success(response);
     }
 

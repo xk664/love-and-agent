@@ -77,7 +77,7 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
             throw new BusinessException(500, "文件内容提取失败: " + e.getMessage());
         }
 
-        // 4. 从文件名提取标题（去掉扩展名）
+        // 4. 从文件名提取标题（自动处理 URL 解码）
         String title = fileContentExtractor.extractTitle(originalFilename);
 
         // 5. 构建文档实体

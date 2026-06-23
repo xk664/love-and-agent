@@ -1,4 +1,4 @@
-package com.yuaiagent.service.chat.mapper;
+package com.yuaiagent.service.agent.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yuaiagent.service.chat.model.AgentTask;

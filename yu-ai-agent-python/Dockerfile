@@ -3,7 +3,7 @@
 # =============================================================================
 
 # Stage 1: Build stage
-FROM python:3.11-slim as builder
+FROM python:3.13-slim AS builder
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 
 # Stage 2: Production stage
-FROM python:3.11-slim as production
+FROM python:3.13-slim AS production
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -46,11 +46,14 @@ WORKDIR /app
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
 
-# Copy application code
-COPY . .
+# Copy application code (only what's needed)
+COPY main.py .
+COPY app/ ./app/
+COPY config/ ./config/
+COPY requirements.txt .
 
 # Create logs directory
-RUN mkdir -p /app/logs && chown -R appuser:appuser /app/logs
+RUN mkdir -p /app/logs && chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
@@ -59,13 +62,13 @@ USER appuser
 EXPOSE 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/internal/health/live || exit 1
 
 # Run the application
 CMD ["uvicorn", "main:app", \
      "--host", "0.0.0.0", \
      "--port", "8000", \
-     "--workers", "4", \
+     "--workers", "2", \
      "--access-log", \
      "--log-level", "info"]

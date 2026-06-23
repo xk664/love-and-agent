@@ -12,7 +12,9 @@ from app.core.logging import get_logger, setup_logging
 from app.api.health import router as health_router
 from app.api.chat import router as chat_router
 from app.api.knowledge import router as knowledge_router
-
+from app.api.agent import router as agent_router
+from app.api.mcp import router as mcp_router
+from app.api.mcp import set_mcp_manager
 # Setup logging first
 logger = get_logger(__name__)
 
@@ -36,10 +38,60 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"PgVector initialization skipped: {e}")
 
+    # Initialize MCP connections
+    mcp_manager = None
+    try:
+        from app.ai.mcp import MCPClientManager, load_mcp_config, register_mcp_tools
+
+        mcp_config = load_mcp_config()
+        if mcp_config.enabled and mcp_config.servers:
+            mcp_manager = MCPClientManager()
+            for server_config in mcp_config.servers:
+                if not server_config.enabled:
+                    logger.info(f"MCP server '{server_config.name}' is disabled, skipping")
+                    continue
+                try:
+                    connection = await mcp_manager.connect(server_config)
+                    tools = await connection.list_tools()
+                    if tools:
+                        register_mcp_tools(
+                            tools_info=tools,
+                            server_name=server_config.name,
+                            call_tool_func=mcp_manager.call_tool,
+                        )
+                        logger.info(
+                            f"MCP server '{server_config.name}': "
+                            f"registered {len(tools)} tools"
+                        )
+                    else:
+                        logger.info(f"MCP server '{server_config.name}': no tools available")
+                except Exception as e:
+                    logger.warning(f"Failed to connect MCP server '{server_config.name}': {e}")
+
+            logger.info(f"MCP initialized: {len(mcp_manager.connected_servers)} servers connected")
+            # 设置全局 MCP 管理器引用（用于 API 热插拔）
+            set_mcp_manager(mcp_manager)
+        else:
+            logger.info("MCP is disabled or no servers configured")
+    except Exception as e:
+        logger.warning(f"MCP initialization skipped: {e}")
+
     yield
 
     # Shutdown
     logger.info("Shutting down application...")
+
+    # Disconnect MCP servers
+    if mcp_manager:
+        try:
+            from app.ai.mcp import unregister_mcp_tools
+
+            for server_name in mcp_manager.connected_servers:
+                unregister_mcp_tools(server_name)
+            await mcp_manager.disconnect_all()
+            logger.info("MCP connections closed")
+        except Exception as e:
+            logger.warning(f"MCP cleanup error: {e}")
 
     # Close database connections
     try:
@@ -74,7 +126,8 @@ def create_app() -> FastAPI:
     app.include_router(health_router, tags=["health"])
     app.include_router(chat_router, tags=["chat"])
     app.include_router(knowledge_router, tags=["knowledge"])
-
+    app.include_router(agent_router, tags=["agent"])
+    app.include_router(mcp_router, tags=["mcp"])
     return app
 
 

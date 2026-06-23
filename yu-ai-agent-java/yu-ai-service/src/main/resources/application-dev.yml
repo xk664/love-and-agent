@@ -70,7 +70,7 @@ python:
   service:
     base-url: ${PYTHON_SERVICE_URL:http://localhost:8000}
     connect-timeout: 5000
-    read-timeout: 30000
+    read-timeout: 120000
     write-timeout: 30000
     endpoints:
       chat-sync: /internal/ai/love/chat/sync

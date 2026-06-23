@@ -139,6 +139,7 @@ async def sync_chat(
     user_id = int(x_user_id)
     rag_results, rag_sources = await _retrieve_knowledge(request.message, user_id)
 
+    logger.info(f"Knowledge retrieval succeeded, rag_content:{rag_sources}")
     # 2. 构建系统提示词（注入 RAG 上下文）
     system_prompt = build_system_prompt(request.emotion_status)
     if rag_results:

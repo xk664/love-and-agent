@@ -25,7 +25,8 @@ import javax.sql.DataSource;
         basePackages = {
                 "com.yuaiagent.service.chat.mapper",
                 "com.yuaiagent.service.user.mapper",
-                "com.yuaiagent.service.knowledge.mapper"
+                "com.yuaiagent.service.knowledge.mapper",
+                "com.yuaiagent.service.agent.mapper",
         },
         sqlSessionFactoryRef = "sqlSessionFactory"
 )

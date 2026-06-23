@@ -84,6 +84,15 @@ public class UserServiceImpl implements UserService {
         return LoginResponse.from(token, user);
     }
 
+    @Override
+    public UserInfoResponse getUserInfo(Long userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(404, "用户不存在");
+        }
+        return UserInfoResponse.from(user);
+    }
+
     /**
      * 校验用户名唯一性
      */

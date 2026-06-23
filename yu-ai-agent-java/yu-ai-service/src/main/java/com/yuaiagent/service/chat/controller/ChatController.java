@@ -36,7 +36,7 @@ public class ChatController {
     @PostMapping("/create")
     public Result<ChatResponse> createChat(
             HttpServletRequest request,
-            @Valid @RequestBody CreateChatRequest createChatRequest) {
+             @RequestBody CreateChatRequest createChatRequest) {
         Long userId = getUserId(request);
         ChatResponse response = chatService.createChat(userId, createChatRequest);
         return Result.success(response);

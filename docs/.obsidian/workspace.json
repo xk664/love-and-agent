@@ -6,7 +6,7 @@
       {
         "id": "e0a118f353d6dfac",
         "type": "tabs",
-        "dimension": 65.85570469798657,
+        "dimension": 68.343653250774,
         "children": [
           {
             "id": "102197b57d891e0d",
@@ -42,7 +42,7 @@
       {
         "id": "53ee58f9d199417b",
         "type": "tabs",
-        "dimension": 34.144295302013425,
+        "dimension": 31.656346749226007,
         "children": [
           {
             "id": "344a95e80489c7f6",
@@ -223,9 +223,10 @@
   },
   "active": "db0de4d76ee93cf2",
   "lastOpenFiles": [
-    "TODO.md",
     "prd.md",
     "tasks.md",
+    "tasks.md.tmp.13688.62843e9d9fc9",
+    "TODO.md",
     "tasks.md.tmp.23284.4e6a7c320949",
     "tasks.md.tmp.23284.4ada550c4cf2",
     "tasks.md.tmp.23284.0b4dc00b85e7",

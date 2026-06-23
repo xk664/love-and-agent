@@ -24,8 +24,9 @@ public class PythonServiceConfig {
 
     /**
      * 读取超时时间（毫秒）
+     * SSE 流式对话需要较长超时，LLM 生成首个 token 可能耗时较久
      */
-    private int readTimeout = 30000;
+    private int readTimeout = 120000;
 
     /**
      * 写入超时时间（毫秒）

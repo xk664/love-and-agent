@@ -45,6 +45,7 @@ class AppSettings(BaseSettings):
         env_prefix = ""
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
 
 class ServerSettings(BaseSettings):
@@ -55,6 +56,7 @@ class ServerSettings(BaseSettings):
         env_prefix = "SERVER_"
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
 
 class DatabaseSettings(BaseSettings):
@@ -84,6 +86,7 @@ class DatabaseSettings(BaseSettings):
         env_prefix = "DB_"
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
 
 class PgVectorSettings(BaseSettings):

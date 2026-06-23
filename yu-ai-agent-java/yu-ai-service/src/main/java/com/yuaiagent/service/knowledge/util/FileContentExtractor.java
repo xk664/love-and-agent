@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -38,8 +39,9 @@ public class FileContentExtractor {
 
     /**
      * 根据文件扩展名识别文件类型
+     * 支持 URL 编码的文件名自动解码
      *
-     * @param filename 文件名
+     * @param filename 文件名（可能被 URL 编码）
      * @return 文件类型（markdown / pdf / txt）
      */
     public String resolveFileType(String filename) {
@@ -47,7 +49,16 @@ public class FileContentExtractor {
             throw new IllegalArgumentException("文件名不能为空");
         }
 
-        String lowerName = filename.toLowerCase();
+        // URL 解码文件名
+        String decodedFilename = filename;
+        try {
+            decodedFilename = URLDecoder.decode(filename, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            // 解码失败时使用原始文件名
+            log.warn("文件名 URL 解码失败，使用原始文件名: {}", filename);
+        }
+
+        String lowerName = decodedFilename.toLowerCase();
         if (lowerName.endsWith(".md") || lowerName.endsWith(".markdown")) {
             return "markdown";
         } else if (lowerName.endsWith(".pdf")) {
@@ -61,8 +72,9 @@ public class FileContentExtractor {
 
     /**
      * 从文件名提取标题（去掉扩展名）
+     * 支持 URL 编码的文件名自动解码
      *
-     * @param filename 文件名
+     * @param filename 文件名（可能被 URL 编码）
      * @return 标题
      */
     public String extractTitle(String filename) {
@@ -70,12 +82,21 @@ public class FileContentExtractor {
             return "未命名文档";
         }
 
-        // 去掉扩展名
-        int lastDotIndex = filename.lastIndexOf('.');
-        if (lastDotIndex > 0) {
-            return filename.substring(0, lastDotIndex);
+        // URL 解码文件名（处理中文文件名被编码的情况）
+        String decodedFilename = filename;
+        try {
+            decodedFilename = URLDecoder.decode(filename, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            // 解码失败时使用原始文件名
+            log.warn("文件名 URL 解码失败，使用原始文件名: {}", filename);
         }
-        return filename;
+
+        // 去掉扩展名
+        int lastDotIndex = decodedFilename.lastIndexOf('.');
+        if (lastDotIndex > 0) {
+            return decodedFilename.substring(0, lastDotIndex);
+        }
+        return decodedFilename;
     }
 
     /**
