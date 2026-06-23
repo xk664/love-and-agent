@@ -23,7 +23,7 @@ database:
   port: 13306
   user: "root"
   password: "123456"
-  name: "yu_agent"
+  name: "love_and_agent"
   pool_size: 10
   max_overflow: 20
   pool_timeout: 30
@@ -34,7 +34,7 @@ pgvector:
   port: 5432
   user: "postgres"
   password: ""
-  database: "yu_agent"
+  database: "love_and_agent"
   collection: "embeddings"
   dimension: 1536
 

@@ -1,6 +1,6 @@
 from typing import Optional, List, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ChatMessage(BaseModel):
@@ -56,3 +56,52 @@ def make_sse_event(event_type: str, **kwargs) -> str:
     event = {"type": event_type}
     event.update(kwargs)
     return json.dumps(event, ensure_ascii=False)
+
+
+# ===== 外部 API 模型（会话 CRUD）=====
+
+EMOTION_STATUS_MAP = {"single": "单身", "relationship": "恋爱", "married": "已婚"}
+
+
+class ChatCreateRequest(BaseModel):
+    """创建会话请求"""
+    app_type: str = Field(..., description="应用类型: love_app / manus")
+    emotion_status: str | None = Field(None, description="情感状态: single/relationship/married，love_app 必填")
+    title: str | None = Field(None, description="会话标题，不传则自动生成")
+
+
+class ChatInfo(BaseModel):
+    """会话信息"""
+    chat_id: str
+    app_type: str
+    emotion_status: str | None = None
+    title: str | None = None
+    create_time: str
+
+
+class ChatPageData(BaseModel):
+    """会话分页数据"""
+    list: list[ChatInfo]
+    page: int
+    page_size: int
+    total: int
+
+
+# ===== 外部 API 模型（消息管理）=====
+
+class MessageInfo(BaseModel):
+    """消息信息"""
+    id: int
+    chat_id: str
+    role: str
+    content: str
+    metadata: dict | None = None
+    create_time: str
+
+
+class MessagePageData(BaseModel):
+    """消息分页数据"""
+    list: list[MessageInfo]
+    page: int
+    page_size: int
+    total: int

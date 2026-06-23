@@ -65,7 +65,7 @@ class DatabaseSettings(BaseSettings):
     DB_PORT: int = Field(default=13306)
     DB_USER: str = Field(default="root")
     DB_PASSWORD: str = Field(default="123456")
-    DB_NAME: str = Field(default="yu_agent")
+    DB_NAME: str = Field(default="love_and_agent")
 
     # Pool settings
     DB_POOL_SIZE: int = Field(default=10)
@@ -168,9 +168,11 @@ class OpenAISettings(BaseSettings):
 
 
 class AuthSettings(BaseSettings):
-    """Internal Authentication Settings"""
+    """Authentication Settings"""
     INTERNAL_TOKEN: str = Field(default="")
     TOKEN_EXPIRE_MINUTES: int = Field(default=60)
+    JWT_SECRET: str = Field(default="yu-ai-agent-secret-key")
+    JWT_EXPIRE_HOURS: int = Field(default=24)
 
     class Config:
         env_prefix = "AUTH_"

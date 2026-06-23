@@ -15,7 +15,7 @@ database:
   port: 13306
   user: "root"
   password: "123456"
-  name: "yu_agent_dev"
+  name: "love_and_agent"
   pool_size: 5
   max_overflow: 10
 
@@ -25,7 +25,7 @@ pgvector:
   user: "root"
   password: "123456"
   database: "love_and_agent"
-  collection: "embeddings_dev"
+  collection: "embeddings"
   dimension: 1536
 
 redis:
