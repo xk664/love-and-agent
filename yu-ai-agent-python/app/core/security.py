@@ -1,91 +1,97 @@
 """
-Internal Token Authentication Middleware
+JWT Authentication
 """
-import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import HTTPException, Request, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+from fastapi import Depends, Header, HTTPException, status
 
 from app.core.config import settings
 
-
-# Bearer token scheme
-security = HTTPBearer(auto_error=False)
-
-
-def generate_internal_token() -> str:
-    """Generate a secure internal token"""
-    return secrets.token_urlsafe(32)
+# JWT configuration
+JWT_SECRET = getattr(settings.auth, "JWT_SECRET", settings.auth.INTERNAL_TOKEN or "yu-ai-agent-secret-key")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_HOURS = 24
 
 
-def create_token(expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(user_id: int, expires_delta: Optional[timedelta] = None) -> str:
     """
-    Create an internal authentication token.
-    In production, use JWT or similar. This is a simple implementation.
+    Create JWT access token.
+
+    Args:
+        user_id: User ID to encode in token
+        expires_delta: Token expiration time delta
+
+    Returns:
+        JWT token string
     """
-    token = generate_internal_token()
-    return token
+    if expires_delta is None:
+        expires_delta = timedelta(hours=JWT_EXPIRE_HOURS)
+
+    payload = {
+        "sub": str(user_id),
+        "exp": datetime.now(timezone.utc) + expires_delta,
+        "iat": datetime.now(timezone.utc),
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
-def verify_token(token: str) -> bool:
+def decode_access_token(token: str) -> int:
     """
-    Verify internal token.
-    For production, implement proper JWT verification.
-    """
-    expected_token = settings.auth.INTERNAL_TOKEN
+    Decode JWT access token and extract user_id.
 
-    if not expected_token:
-        # If no token configured, allow all (dev mode)
-        if settings.app.DEBUG:
-            return True
+    Args:
+        token: JWT token string
+
+    Returns:
+        User ID
+
+    Raises:
+        HTTPException: If token is invalid or expired
+    """
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id_str = payload.get("sub")
+        if user_id_str is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token: missing user ID",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return int(user_id_str)
+    except jwt.ExpiredSignatureError:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal token not configured"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
-    return secrets.compare_digest(token, expected_token)
 
+async def get_current_user_id(
+    authorization: Optional[str] = Header(None, alias="Authorization"),
+) -> int:
+    """
+    FastAPI dependency: extract user_id from JWT token.
 
-async def get_current_token(credentials: Optional[HTTPAuthorizationCredentials] = None) -> str:
-    """Get and verify current token from request"""
-    if credentials is None:
+    前端只需在 Header 中传 Authorization: <token>，无需 Bearer 前缀。
+
+    Usage:
+        @router.get("/protected")
+        async def protected(user_id: int = Depends(get_current_user_id)):
+            return {"user_id": user_id}
+    """
+    if not authorization:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing authentication token",
-            headers={"WWW-Authenticate": "Bearer"},
         )
-
-    token = credentials.credentials
-
-    if not verify_token(token):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    return token
-
-
-def require_auth(credentials: HTTPAuthorizationCredentials = security):
-    """
-    Dependency for protected endpoints.
-    Usage: @router.get("/protected", dependencies=[Depends(require_auth)])
-    """
-    if credentials is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing authentication token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    if not verify_token(credentials.credentials):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    return credentials.credentials
+    # 兼容 "Bearer xxx" 和直接传 "xxx" 两种格式
+    token = authorization.removeprefix("Bearer ").strip()
+    return decode_access_token(token)

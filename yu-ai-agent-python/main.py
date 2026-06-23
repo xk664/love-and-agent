@@ -13,8 +13,15 @@ from app.api.health import router as health_router
 from app.api.chat import router as chat_router
 from app.api.knowledge import router as knowledge_router
 from app.api.agent import router as agent_router
+from app.api.user import router as user_router
+from app.api.chat_v1 import router as chat_v1_router
+from app.api.message_v1 import router as message_v1_router
+from app.api.agent_v1 import router as agent_v1_router
+from app.api.knowledge_v1 import router as knowledge_v1_router
+from app.api.chat_ai_v1 import router as chat_ai_v1_router
 from app.api.mcp import router as mcp_router
 from app.api.mcp import set_mcp_manager
+from app.core.exceptions import register_exception_handlers
 # Setup logging first
 logger = get_logger(__name__)
 
@@ -30,7 +37,15 @@ async def lifespan(app: FastAPI):
     logger.info(f"Environment: {settings.app.APP_ENV}")
     logger.info(f"Debug mode: {settings.app.DEBUG}")
 
-    # Initialize PgVector connection
+    # Initialize MySQL connection
+    try:
+        from app.core.database import init_db
+        await init_db()
+        logger.info("MySQL database initialized")
+    except Exception as e:
+        logger.warning(f"MySQL initialization failed: {e}")
+
+    # Initialize PgVector connection (creates embeddings table)
     try:
         from app.ai.rag.vector_store import vector_store
         await vector_store.init_db()
@@ -93,13 +108,21 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning(f"MCP cleanup error: {e}")
 
-    # Close database connections
+    # Close MySQL connections
+    try:
+        from app.core.database import close_db
+        await close_db()
+        logger.info("MySQL connections closed")
+    except Exception as e:
+        logger.warning(f"MySQL cleanup error: {e}")
+
+    # Close PgVector connections
     try:
         from app.ai.rag.vector_store import vector_store
         await vector_store.close()
-        logger.info("Database connections closed")
+        logger.info("PgVector connections closed")
     except Exception as e:
-        logger.warning(f"Database cleanup error: {e}")
+        logger.warning(f"PgVector cleanup error: {e}")
 
 
 def create_app() -> FastAPI:
@@ -122,12 +145,21 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # Register exception handlers
+    register_exception_handlers(app)
+
     # Include routers
     app.include_router(health_router, tags=["health"])
     app.include_router(chat_router, tags=["chat"])
     app.include_router(knowledge_router, tags=["knowledge"])
     app.include_router(agent_router, tags=["agent"])
     app.include_router(mcp_router, tags=["mcp"])
+    app.include_router(user_router, tags=["user"])
+    app.include_router(chat_v1_router, tags=["chat"])
+    app.include_router(message_v1_router, tags=["message"])
+    app.include_router(agent_v1_router, tags=["agent"])
+    app.include_router(knowledge_v1_router, tags=["knowledge"])
+    app.include_router(chat_ai_v1_router, tags=["chat"])
     return app
 
 
