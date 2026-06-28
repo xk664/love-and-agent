@@ -1,32 +1,78 @@
 <template>
   <div class="love-master">
-    <div class="page-header">
-      <h1 class="page-title">
-        <span class="title-dot coral" />
-        恋爱大师
-      </h1>
-      <p class="page-subtitle">用温暖的方式，理解你的每一种心情</p>
-    </div>
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-left">
+        <button class="btn-back" @click="$router.push('/')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <div class="header-info">
+          <h1 class="page-title">恋爱大师</h1>
+          <p class="page-subtitle">温暖陪伴，理解你的每一种心情</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-dot" />
+        <span>在线</span>
+      </div>
+    </header>
 
     <div class="chat-container">
       <!-- Session Panel -->
-      <SessionPanel
-        :sessions="chatStore.sessions"
-        :active-id="chatStore.currentChatId"
-        accent="coral"
-        app-type="love_app"
-        empty-icon="♡"
-        empty-text="还没有对话，点击「新建对话」开始吧"
-        @create="showCreateDialog = true"
-        @select="selectSession"
-        @delete="handleDelete"
-      />
+      <aside class="session-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">对话列表</h2>
+          <button class="btn-new" @click="showCreateDialog = true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            <span>新建</span>
+          </button>
+        </div>
 
-      <!-- Chat area -->
-      <div class="chat-main">
+        <div class="session-list" v-if="chatStore.sessions.length > 0">
+          <button
+            v-for="session in chatStore.sessions"
+            :key="session.chat_id"
+            class="session-item"
+            :class="{ active: chatStore.currentChatId === session.chat_id }"
+            @click="selectSession(session)"
+          >
+            <div class="session-icon">♡</div>
+            <div class="session-info">
+              <span class="session-title">{{ session.title || '新对话' }}</span>
+              <span class="session-time">{{ formatRelativeTime(session.createTime) }}</span>
+            </div>
+            <button
+              class="session-delete"
+              @click.stop="handleDelete(session)"
+              title="删除对话"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+              </svg>
+            </button>
+          </button>
+        </div>
+
+        <div class="panel-empty" v-else>
+          <div class="empty-icon">♡</div>
+          <p>还没有对话</p>
+          <button class="btn-create" @click="showCreateDialog = true">开始新对话</button>
+        </div>
+      </aside>
+
+      <!-- Main Chat Area -->
+      <main class="chat-main">
         <!-- No session selected -->
         <div v-if="!chatStore.currentChatId" class="no-session">
-          <div class="no-session-icon">♡</div>
+          <div class="no-session-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </div>
           <h3>选择一个对话</h3>
           <p>从左侧选择已有对话，或创建新的对话</p>
         </div>
@@ -34,11 +80,11 @@
         <!-- Active chat -->
         <template v-else>
           <!-- Messages area -->
-          <div class="messages-area" ref="messagesRef" @scroll="onMessagesScroll">
+          <div class="messages-area" ref="messagesRef">
             <!-- Welcome (empty chat) -->
             <div v-if="displayMessages.length === 0 && !chatStore.streaming" class="welcome">
               <div class="welcome-avatar">
-                <span class="avatar-circle">♡</span>
+                <div class="avatar-large">♡</div>
               </div>
               <h3>你好，我是恋爱大师</h3>
               <p class="welcome-desc">无论什么心情，都可以和我聊聊。我会用心倾听，给你温暖的建议。</p>
@@ -60,6 +106,7 @@
               <div v-if="msg.role === 'user'" class="message-row user-row">
                 <div class="bubble user-bubble">
                   <div class="bubble-text">{{ msg.content }}</div>
+                  <div class="bubble-time">{{ formatTime(msg.createTime) }}</div>
                 </div>
               </div>
 
@@ -67,45 +114,46 @@
               <div v-else class="message-row assistant-row">
                 <div class="avatar-sm">♡</div>
                 <div class="bubble assistant-bubble">
-                  <div class="bubble-text">{{ msg.content }}</div>
+                  <div class="bubble-text">
+                    <MarkdownRenderer :content="msg.content" />
+                  </div>
 
-                  <!-- Metadata toggle -->
-                  <div v-if="hasMetadata(msg)" class="metadata-area">
+                  <!-- RAG Sources toggle -->
+                  <div v-if="hasRagSources(msg)" class="metadata-area">
                     <button
                       class="metadata-toggle"
                       :class="{ expanded: msg._metaOpen }"
                       @click="toggleMetadata(msg)"
                     >
-                      <span class="meta-icon">◎</span>
-                      <span>{{ msg._metaOpen ? '收起详情' : '查看来源' }}</span>
+                      <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                      </svg>
+                      <span>{{ msg._metaOpen ? '收起来源' : '查看来源' }}</span>
                     </button>
                     <div v-if="msg._metaOpen" class="metadata-detail">
-                      <div v-if="getRagSources(msg).length" class="meta-section">
+                      <div class="meta-section">
                         <span class="meta-label">参考来源</span>
                         <div
                           v-for="(src, i) in getRagSources(msg)"
                           :key="i"
                           class="meta-source"
                         >
-                          <span class="source-name">{{ src.title || src.document_title || `来源 ${i + 1}` }}</span>
+                          <span class="source-name">{{ getSourceTitle(src, i) }}</span>
                           <span v-if="src.score" class="source-score">{{ (src.score * 100).toFixed(0) }}%</span>
                         </div>
                       </div>
-                      <div class="meta-footer">
-                        <span v-if="getModel(msg)">模型: {{ getModel(msg) }}</span>
-                        <span v-if="getTokens(msg)">Token: {{ getTokens(msg) }}</span>
-                      </div>
                     </div>
                   </div>
-
-                  <!-- Timestamp -->
-                  <div class="bubble-time">{{ formatTime(msg.createTime) }}</div>
                 </div>
               </div>
             </template>
 
             <!-- Thinking indicator -->
-            <div v-if="chatStore.thinkingContent" class="message-row assistant-row">
+            <div v-if="chatStore.streaming && !chatStore.streamingContent" class="message-row assistant-row">
               <div class="avatar-sm">♡</div>
               <div class="bubble assistant-bubble thinking-bubble">
                 <div class="thinking-dots">
@@ -122,7 +170,7 @@
               <div class="avatar-sm">♡</div>
               <div class="bubble assistant-bubble">
                 <div class="bubble-text streaming-text">
-                  {{ chatStore.streamingContent }}<span class="cursor" />
+                  <MarkdownRenderer :content="chatStore.streamingContent" /><span class="cursor" />
                 </div>
               </div>
             </div>
@@ -147,16 +195,18 @@
                   class="btn-stop"
                   @click="chatStore.cancelStream()"
                 >
-                  <span class="stop-icon" />
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="6" width="12" height="12" rx="2" />
+                  </svg>
                   停止
                 </button>
                 <button
                   v-else
-                  class="btn-send coral"
+                  class="btn-send"
                   :disabled="!inputText.trim()"
                   @click="sendMessage"
                 >
-                  <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M22 2L11 13" />
                     <path d="M22 2L15 22L11 13L2 9L22 2Z" />
                   </svg>
@@ -173,7 +223,7 @@
             </div>
           </div>
         </template>
-      </div>
+      </main>
     </div>
 
     <!-- Create Session Dialog -->
@@ -189,8 +239,8 @@
 <script setup>
 import { ref, computed, nextTick, watch, onMounted } from 'vue'
 import { useChatStore } from '@/stores/chat'
-import SessionPanel from '@/components/SessionPanel.vue'
 import CreateSessionDialog from '@/components/CreateSessionDialog.vue'
+import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 
 const chatStore = useChatStore()
 const inputText = ref('')
@@ -207,17 +257,15 @@ const starters = [
   '刚分手，不知道该怎么办'
 ]
 
-// ---- Computed: messages with stable keys ----
-const displayMessages = computed(() => {
-  return chatStore.messages.map((msg) => ({
-    ...msg,
-    _key: msg.id || msg.createTime || ++messageKeyCounter,
-    _metaOpen: msg._metaOpen || false
-  }))
-})
+// ---- Messages list (使用 computed 保持响应性) ----
+const displayMessages = computed(() => chatStore.messages)
 
 // ---- Lifecycle ----
 onMounted(() => {
+  // 清除之前的消息，避免显示其他模块的对话记录
+  chatStore.clearMessages()
+  chatStore.currentChatId = null
+  chatStore.currentSession = null
   chatStore.fetchSessions({ app_type: 'love_app' })
 })
 
@@ -232,18 +280,15 @@ watch(
 // ---- Session Management ----
 function selectSession(session) {
   chatStore.setCurrentSession(session)
-  const id = session.chatId || session.chat_id
-  chatStore.fetchMessages(id)
+  chatStore.fetchMessages(session.chat_id)
 }
 
 async function handleDelete(session) {
-  const id = session.chatId || session.chat_id
-  await chatStore.deleteSession(id)
+  await chatStore.deleteSession(session.chat_id)
 }
 
 function onSessionCreated(session) {
-  const id = session.chatId || session.chat_id
-  chatStore.fetchMessages(id)
+  chatStore.fetchMessages(session.chat_id)
 }
 
 // ---- Messaging ----
@@ -292,25 +337,7 @@ function scrollToBottom() {
   }
 }
 
-function onMessagesScroll() {
-  // Could implement "load more" for history pagination here
-}
-
 // ---- Metadata helpers ----
-function hasMetadata(msg) {
-  const meta = msg.metadata
-  if (!meta) return false
-  if (typeof meta === 'string') {
-    try {
-      const parsed = JSON.parse(meta)
-      return parsed.rag_sources?.length > 0 || parsed.tokens_used || parsed.model
-    } catch {
-      return false
-    }
-  }
-  return meta.rag_sources?.length > 0 || meta.tokens_used || meta.model
-}
-
 function getMeta(msg) {
   const meta = msg.metadata
   if (!meta) return {}
@@ -320,16 +347,17 @@ function getMeta(msg) {
   return meta
 }
 
+function hasRagSources(msg) {
+  const sources = getMeta(msg).rag_sources
+  return Array.isArray(sources) && sources.length > 0
+}
+
 function getRagSources(msg) {
   return getMeta(msg).rag_sources || []
 }
 
-function getModel(msg) {
-  return getMeta(msg).model
-}
-
-function getTokens(msg) {
-  return getMeta(msg).tokens_used
+function getSourceTitle(src, index) {
+  return src.title || src.document_title || `来源 ${index + 1}`
 }
 
 function toggleMetadata(msg) {
@@ -343,6 +371,19 @@ function formatTime(time) {
   if (isNaN(d.getTime())) return ''
   return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
 }
+
+function formatRelativeTime(time) {
+  if (!time) return ''
+  const d = new Date(time)
+  if (isNaN(d.getTime())) return ''
+  const now = new Date()
+  const diff = now - d
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  if (days === 0) return '今天'
+  if (days === 1) return '昨天'
+  if (days < 7) return `${days}天前`
+  return `${d.getMonth() + 1}/${d.getDate()}`
+}
 </script>
 
 <style scoped>
@@ -350,91 +391,313 @@ function formatTime(time) {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--color-mist);
+  background: var(--color-bg);
 }
 
+/* ---- Header ---- */
 .page-header {
-  padding: var(--space-5) var(--space-6);
-  background: var(--color-cloud);
-  border-bottom: 1px solid var(--color-stone-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
-.page-title {
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
+.header-left {
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
 
-.title-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.btn-back {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  color: var(--color-ink-muted);
+  transition: all var(--duration-fast);
 }
 
-.title-dot.coral {
-  background: var(--color-coral);
-  box-shadow: var(--shadow-glow-coral);
+.btn-back:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-ink);
+}
+
+.btn-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+  line-height: var(--leading-tight);
 }
 
 .page-subtitle {
-  font-size: var(--text-sm);
-  color: var(--color-stone);
-  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
 }
 
-/* ===== Chat Container ===== */
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-success);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-success);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* ---- Chat Container ---- */
 .chat-container {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
-.chat-main {
-  flex: 1;
+/* ---- Session Panel ---- */
+.session-panel {
+  width: var(--sidebar-width);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  background: var(--color-mist);
+  flex-shrink: 0;
 }
 
-/* ===== No Session Selected ===== */
-.no-session {
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.panel-title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}
+
+.btn-new {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--border-radius);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  transition: all var(--duration-fast);
+}
+
+.btn-new:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+.btn-new svg {
+  width: 14px;
+  height: 14px;
+}
+
+.session-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--border-radius);
+  text-align: left;
+  transition: all var(--duration-fast);
+  position: relative;
+}
+
+.session-item:hover {
+  background: var(--color-surface-hover);
+}
+
+.session-item.active {
+  background: var(--color-accent-bg);
+}
+
+.session-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+  color: #ec4899;
+  border-radius: var(--border-radius);
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+
+.session-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-title {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-time {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-ink-faint);
+  margin-top: 2px;
+}
+
+.session-delete {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  color: var(--color-ink-faint);
+  opacity: 0;
+  transition: all var(--duration-fast);
+  flex-shrink: 0;
+}
+
+.session-item:hover .session-delete {
+  opacity: 1;
+}
+
+.session-delete:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.session-delete svg {
+  width: 14px;
+  height: 14px;
+}
+
+.panel-empty {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  color: var(--color-stone);
-}
-
-.no-session-icon {
-  font-size: 48px;
-  color: var(--color-coral-light);
-  opacity: 0.6;
-}
-
-.no-session h3 {
-  font-size: var(--text-lg);
-  font-weight: var(--weight-medium);
+  padding: var(--space-6);
   color: var(--color-ink-muted);
 }
 
-.no-session p {
+.empty-icon {
+  font-size: 32px;
+  color: var(--color-accent-light);
+  opacity: 0.5;
+}
+
+.panel-empty p {
   font-size: var(--text-sm);
 }
 
-/* ===== Welcome (empty chat) ===== */
-.welcome {
+.btn-create {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-accent);
+  color: white;
+  border-radius: var(--border-radius);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition: all var(--duration-fast);
+}
+
+.btn-create:hover {
+  background: var(--color-accent-dark);
+}
+
+/* ---- Chat Main ---- */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--color-bg);
+}
+
+/* ---- No Session Selected ---- */
+.no-session {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
+}
+
+.no-session-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.no-session-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.no-session h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+}
+
+.no-session p {
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+
+/* ---- Welcome (empty chat) ---- */
+.welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
   padding: var(--space-8);
 }
 
@@ -442,17 +705,17 @@ function formatTime(time) {
   margin-bottom: var(--space-2);
 }
 
-.avatar-circle {
+.avatar-large {
+  width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-coral), var(--color-coral-light));
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
   color: white;
   font-size: 28px;
-  box-shadow: var(--shadow-glow-coral);
+  border-radius: 50%;
+  box-shadow: var(--glow-accent);
 }
 
 .welcome h3 {
@@ -463,7 +726,7 @@ function formatTime(time) {
 
 .welcome-desc {
   font-size: var(--text-sm);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   text-align: center;
   max-width: 360px;
   line-height: var(--leading-relaxed);
@@ -475,27 +738,26 @@ function formatTime(time) {
   gap: var(--space-2);
   justify-content: center;
   margin-top: var(--space-2);
-  max-width: 480px;
+  max-width: 500px;
 }
 
 .starter-chip {
   padding: var(--space-2) var(--space-4);
-  background: var(--color-cloud);
-  border: 1px solid var(--color-stone-light);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-full);
   font-size: var(--text-sm);
   color: var(--color-ink-muted);
   transition: all var(--duration-fast);
-  cursor: pointer;
 }
 
 .starter-chip:hover {
-  border-color: var(--color-coral);
-  color: var(--color-coral);
-  background: var(--color-coral-bg);
+  border-color: var(--color-accent);
+  color: var(--color-accent-dark);
+  background: var(--color-accent-bg);
 }
 
-/* ===== Messages Area ===== */
+/* ---- Messages Area ---- */
 .messages-area {
   flex: 1;
   overflow-y: auto;
@@ -505,7 +767,7 @@ function formatTime(time) {
   gap: var(--space-5);
 }
 
-/* ===== Message Row ===== */
+/* ---- Message Row ---- */
 .message-row {
   display: flex;
   align-items: flex-end;
@@ -516,7 +778,7 @@ function formatTime(time) {
 @keyframes msgIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -534,40 +796,39 @@ function formatTime(time) {
   justify-content: flex-start;
 }
 
-/* ===== Avatar ===== */
+/* ---- Avatar ---- */
 .avatar-sm {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-coral), var(--color-coral-light));
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
   color: white;
-  font-size: 14px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
 }
 
-/* ===== Bubbles ===== */
+/* ---- Bubbles ---- */
 .bubble {
   max-width: 70%;
   position: relative;
 }
 
 .user-bubble {
-  background: var(--color-coral);
+  background: var(--color-primary);
   color: white;
   border-radius: var(--border-radius-lg) var(--border-radius-lg) 4px var(--border-radius-lg);
   padding: var(--space-3) var(--space-4);
 }
 
 .assistant-bubble {
-  background: var(--color-cloud);
+  background: var(--color-surface);
   color: var(--color-ink);
   border-radius: var(--border-radius-lg) var(--border-radius-lg) var(--border-radius-lg) 4px;
   padding: var(--space-3) var(--space-4);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
 }
 
 .bubble-text {
@@ -578,17 +839,17 @@ function formatTime(time) {
 }
 
 .bubble-time {
-  font-size: 11px;
-  color: var(--color-stone-light);
+  font-size: var(--text-xs);
+  color: var(--color-ink-faint);
   margin-top: var(--space-1);
   text-align: right;
 }
 
 .user-bubble .bubble-time {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
-/* ===== Thinking Indicator ===== */
+/* ---- Thinking Indicator ---- */
 .thinking-bubble {
   display: flex;
   align-items: center;
@@ -605,7 +866,7 @@ function formatTime(time) {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--color-coral);
+  background: var(--color-accent);
   animation: dotPulse 1.4s infinite;
 }
 
@@ -630,10 +891,10 @@ function formatTime(time) {
 
 .thinking-text {
   font-size: var(--text-sm);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
 }
 
-/* ===== Streaming Cursor ===== */
+/* ---- Streaming Cursor ---- */
 .streaming-text {
   position: relative;
 }
@@ -641,8 +902,8 @@ function formatTime(time) {
 .cursor {
   display: inline-block;
   width: 2px;
-  height: 1.1em;
-  background: var(--color-coral);
+  height: 1em;
+  background: var(--color-accent);
   margin-left: 2px;
   vertical-align: text-bottom;
   animation: blink 0.8s infinite;
@@ -653,11 +914,11 @@ function formatTime(time) {
   51%, 100% { opacity: 0; }
 }
 
-/* ===== Metadata ===== */
+/* ---- Metadata ---- */
 .metadata-area {
-  margin-top: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--color-stone-bg);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .metadata-toggle {
@@ -665,21 +926,22 @@ function formatTime(time) {
   align-items: center;
   gap: var(--space-1);
   font-size: var(--text-xs);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   padding: var(--space-1) 0;
   transition: color var(--duration-fast);
 }
 
 .metadata-toggle:hover {
-  color: var(--color-coral);
+  color: var(--color-accent);
 }
 
 .metadata-toggle.expanded {
-  color: var(--color-coral);
+  color: var(--color-accent);
 }
 
 .meta-icon {
-  font-size: 12px;
+  width: 14px;
+  height: 14px;
   transition: transform var(--duration-fast);
 }
 
@@ -688,9 +950,9 @@ function formatTime(time) {
 }
 
 .metadata-detail {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
   padding: var(--space-3);
-  background: var(--color-mist);
+  background: var(--color-bg);
   border-radius: var(--border-radius);
   animation: slideDown var(--duration-normal) var(--ease-out);
 }
@@ -712,7 +974,7 @@ function formatTime(time) {
 
 .meta-label {
   font-size: var(--text-xs);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   font-weight: var(--weight-medium);
   display: block;
   margin-bottom: var(--space-1);
@@ -727,11 +989,11 @@ function formatTime(time) {
 }
 
 .source-name {
-  color: var(--color-ink-muted);
+  color: var(--color-ink-light);
 }
 
 .source-score {
-  color: var(--color-coral);
+  color: var(--color-accent);
   font-weight: var(--weight-medium);
 }
 
@@ -739,16 +1001,16 @@ function formatTime(time) {
   display: flex;
   gap: var(--space-4);
   font-size: 11px;
-  color: var(--color-stone-light);
+  color: var(--color-ink-faint);
   padding-top: var(--space-2);
-  border-top: 1px solid var(--color-stone-bg);
+  border-top: 1px solid var(--color-border-light);
 }
 
-/* ===== Input Area ===== */
+/* ---- Input Area ---- */
 .input-area {
-  padding: var(--space-4) var(--space-8) var(--space-5);
-  background: var(--color-cloud);
-  border-top: 1px solid var(--color-stone-bg);
+  padding: var(--space-4) var(--space-6) var(--space-5);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
@@ -756,38 +1018,37 @@ function formatTime(time) {
   display: flex;
   align-items: flex-end;
   gap: var(--space-3);
-  background: var(--color-mist);
-  border: 1px solid var(--color-stone-light);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
   padding: var(--space-2) var(--space-3);
   transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
 }
 
 .input-wrapper:focus-within {
-  border-color: var(--color-coral);
-  box-shadow: 0 0 0 3px var(--color-coral-bg);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-bg);
 }
 
 .chat-input {
   flex: 1;
   border: none;
   background: transparent;
-  padding: var(--space-2) var(--space-2);
+  padding: var(--space-2);
   font-size: var(--text-base);
   resize: none;
   min-height: 24px;
   max-height: 120px;
   line-height: var(--leading-normal);
-  font-family: var(--font-sans);
   color: var(--color-ink);
 }
 
 .chat-input::placeholder {
-  color: var(--color-stone-light);
+  color: var(--color-ink-faint);
 }
 
 .chat-input:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .input-actions {
@@ -804,17 +1065,15 @@ function formatTime(time) {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--color-accent);
+  color: white;
   transition: all var(--duration-fast);
 }
 
-.btn-send.coral {
-  background: var(--color-coral);
-  color: white;
-}
-
-.btn-send.coral:hover:not(:disabled) {
-  background: #d45a78;
+.btn-send:hover:not(:disabled) {
+  background: var(--color-accent-dark);
   transform: scale(1.05);
+  box-shadow: var(--glow-accent);
 }
 
 .btn-send:disabled {
@@ -822,7 +1081,7 @@ function formatTime(time) {
   cursor: not-allowed;
 }
 
-.send-icon {
+.btn-send svg {
   width: 18px;
   height: 18px;
 }
@@ -832,8 +1091,8 @@ function formatTime(time) {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  background: var(--color-stone-bg);
-  color: var(--color-ink-muted);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
   border-radius: var(--border-radius-full);
   font-size: var(--text-sm);
   transition: all var(--duration-fast);
@@ -844,22 +1103,20 @@ function formatTime(time) {
   color: white;
 }
 
-.stop-icon {
-  width: 10px;
-  height: 10px;
-  background: currentColor;
-  border-radius: 2px;
+.btn-stop svg {
+  width: 14px;
+  height: 14px;
 }
 
 .input-hint {
   text-align: center;
   margin-top: var(--space-2);
   font-size: 11px;
-  color: var(--color-stone-light);
+  color: var(--color-ink-faint);
 }
 
 .hint-streaming {
-  color: var(--color-coral);
+  color: var(--color-accent);
   animation: fadeInOut 2s infinite;
 }
 
@@ -868,10 +1125,34 @@ function formatTime(time) {
   50% { opacity: 1; }
 }
 
-/* ===== Responsive ===== */
+/* ---- Animations ---- */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ---- Responsive ---- */
 @media (max-width: 768px) {
+  .session-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: var(--z-sticky);
+    transform: translateX(-100%);
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  .session-panel.open {
+    transform: translateX(0);
+  }
+
   .chat-container {
-    flex-direction: column;
+    position: relative;
   }
 
   .messages-area {

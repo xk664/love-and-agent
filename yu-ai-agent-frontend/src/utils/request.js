@@ -33,6 +33,9 @@ service.interceptors.response.use(
   },
   (error) => {
     const status = error.response?.status
+    // 从后端响应体中提取错误消息
+    const backendMessage = error.response?.data?.message
+
     if (status === 401) {
       localStorage.removeItem('token')
       ElMessage.warning('登录已过期，请重新登录')
@@ -41,10 +44,9 @@ service.interceptors.response.use(
       ElMessage.error('没有权限执行此操作')
     } else if (status >= 500) {
       ElMessage.error('服务器错误，请稍后重试')
-    } else {
-      ElMessage.error(error.message || '网络异常')
     }
-    return Promise.reject(error)
+    // 400 等其他错误：不在此处显示消息，让调用方自己处理
+    return Promise.reject(new Error(backendMessage || error.message))
   }
 )
 

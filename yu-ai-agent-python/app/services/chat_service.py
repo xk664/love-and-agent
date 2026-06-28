@@ -29,19 +29,21 @@ def _to_response(chat: Chat) -> dict:
         "chat_id": chat.chat_id,
         "app_type": chat.app_type,
         "emotion_status": EMOTION_STATUS_MAP.get(chat.emotion_status, chat.emotion_status),
+        "friend_id": chat.friend_id,
         "title": chat.title,
         "last_message_time": chat.last_message_time.isoformat() if chat.last_message_time else None,
         "create_time": chat.create_time.isoformat() if chat.create_time else None,
     }
 
 
-async def create_chat(db: AsyncSession, user_id: int, app_type: str, emotion_status: str = None, title: str = None) -> dict:
+async def create_chat(db: AsyncSession, user_id: int, app_type: str, emotion_status: str = None, title: str = None, friend_id: int = None) -> dict:
     """
     创建会话
 
     - love_app 类型必须选择 emotion_status
     - manus 类型忽略 emotion_status
     - 生成 UUID chat_id
+    - friend_id 可选，关联数字朋友
     """
     # 1. 校验情感状态
     if app_type == "love_app":
@@ -50,19 +52,37 @@ async def create_chat(db: AsyncSession, user_id: int, app_type: str, emotion_sta
     elif app_type == "manus":
         emotion_status = None
 
-    # 2. 创建会话
+    # 2. 校验 friend_id 是否存在且属于当前用户
+    if friend_id:
+        from sqlalchemy import select as sel
+        from app.models.db.digital_friend import DigitalFriend
+        friend_result = await db.execute(
+            sel(DigitalFriend).where(
+                DigitalFriend.id == friend_id,
+                DigitalFriend.user_id == user_id,
+                DigitalFriend.is_deleted == False,
+            )
+        )
+        friend = friend_result.scalar_one_or_none()
+        if not friend:
+            raise BusinessException(code=400, message="数字朋友不存在")
+        if not friend.system_prompt or friend.status != "ready":
+            raise BusinessException(code=400, message="该数字朋友尚未完成人格蒸馏")
+
+    # 3. 创建会话
     chat = Chat(
         chat_id=str(uuid.uuid4()),
         user_id=user_id,
         app_type=app_type,
         emotion_status=emotion_status,
+        friend_id=friend_id,
         title=title or ("智能体任务" if app_type == "manus" else "新对话"),
     )
     db.add(chat)
     await db.flush()
     await db.refresh(chat)
 
-    logger.info(f"创建会话成功: chat_id={chat.chat_id}, user_id={user_id}, app_type={app_type}")
+    logger.info(f"创建会话成功: chat_id={chat.chat_id}, user_id={user_id}, app_type={app_type}, friend_id={friend_id}")
 
     return _to_response(chat)
 

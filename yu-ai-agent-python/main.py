@@ -19,6 +19,7 @@ from app.api.message_v1 import router as message_v1_router
 from app.api.agent_v1 import router as agent_v1_router
 from app.api.knowledge_v1 import router as knowledge_v1_router
 from app.api.chat_ai_v1 import router as chat_ai_v1_router
+from app.api.digital_friend_v1 import router as digital_friend_v1_router
 from app.api.mcp import router as mcp_router
 from app.api.mcp import set_mcp_manager
 from app.core.exceptions import register_exception_handlers
@@ -160,6 +161,7 @@ def create_app() -> FastAPI:
     app.include_router(agent_v1_router, tags=["agent"])
     app.include_router(knowledge_v1_router, tags=["knowledge"])
     app.include_router(chat_ai_v1_router, tags=["chat"])
+    app.include_router(digital_friend_v1_router, tags=["digital_friend"])
     return app
 
 

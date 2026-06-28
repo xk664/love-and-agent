@@ -1,19 +1,22 @@
 <template>
   <div class="knowledge-page">
-    <div class="page-header">
-      <div class="header-top">
-        <div>
-          <h1 class="page-title">
-            <span class="title-icon">☰</span>
-            知识库
-          </h1>
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-left">
+        <button class="btn-back" @click="$router.push('/')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <div class="header-info">
+          <h1 class="page-title">知识库</h1>
           <p class="page-subtitle">上传文档，构建专属知识体系</p>
         </div>
-        <div class="header-stats" v-if="documents.length > 0">
-          <span class="stat">{{ documents.length }} 份文档</span>
-        </div>
       </div>
-    </div>
+      <div class="header-stats" v-if="documents.length > 0">
+        <span class="stat-badge">{{ documents.length }} 份文档</span>
+      </div>
+    </header>
 
     <div class="knowledge-content">
       <!-- Upload area -->
@@ -129,7 +132,9 @@
             :disabled="currentPage <= 1"
             @click="goPage(currentPage - 1)"
           >
-            ‹
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
           <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
           <button
@@ -137,14 +142,21 @@
             :disabled="currentPage >= totalPages"
             @click="goPage(currentPage + 1)"
           >
-            ›
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </button>
         </div>
       </div>
 
       <!-- Empty state -->
       <div v-else-if="!loading" class="empty-state">
-        <div class="empty-icon">📚</div>
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
+        </div>
         <h3>还没有文档</h3>
         <p>上传文档后，AI 可以在对话中引用这些知识来回答问题</p>
       </div>
@@ -178,7 +190,7 @@ async function fetchDocuments(page = 1) {
   loading.value = true
   try {
     const res = await request({
-      url: '/v1/knowledge/documents',
+      url: '/v1/knowledge/document/list',
       method: 'get',
       params: { page, page_size: pageSize.value }
     })
@@ -332,50 +344,69 @@ function formatTime(time) {
 <style scoped>
 .knowledge-page {
   min-height: 100vh;
-  background: var(--color-mist);
+  background: var(--color-bg);
 }
 
+/* ---- Header ---- */
 .page-header {
-  padding: var(--space-5) var(--space-6);
-  background: var(--color-cloud);
-  border-bottom: 1px solid var(--color-stone-bg);
-}
-
-.header-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.page-title {
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
+.header-left {
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
 
-.title-icon {
+.btn-back {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  color: var(--color-ink-muted);
+  transition: all var(--duration-fast);
+}
+
+.btn-back:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-ink);
+}
+
+.btn-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-title {
   font-size: var(--text-lg);
-  color: var(--color-stone);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+  line-height: var(--leading-tight);
 }
 
 .page-subtitle {
-  font-size: var(--text-sm);
-  color: var(--color-stone);
-  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
 }
 
-.header-stats {
-  display: flex;
-  gap: var(--space-4);
-}
-
-.stat {
-  font-size: var(--text-sm);
-  color: var(--color-stone);
+.stat-badge {
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
   padding: var(--space-1) var(--space-3);
-  background: var(--color-stone-bg);
+  background: var(--color-surface-hover);
   border-radius: var(--border-radius-full);
 }
 
@@ -391,51 +422,51 @@ function formatTime(time) {
 }
 
 .upload-zone {
-  border: 2px dashed var(--color-stone-light);
+  border: 2px dashed var(--color-border);
   border-radius: var(--border-radius-lg);
-  padding: var(--space-8);
+  padding: var(--space-10) var(--space-8);
   text-align: center;
   cursor: pointer;
   transition: all var(--duration-fast);
-  background: var(--color-cloud);
+  background: var(--color-surface);
 }
 
 .upload-zone:hover,
 .upload-zone.dragover {
-  border-color: var(--color-indigo);
-  background: var(--color-indigo-bg);
+  border-color: var(--color-accent);
+  background: var(--color-accent-bg);
 }
 
 .upload-zone.uploading {
-  border-color: var(--color-indigo);
+  border-color: var(--color-accent);
   border-style: solid;
   cursor: default;
 }
 
 .upload-icon-wrap {
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 .upload-svg {
-  width: 36px;
-  height: 36px;
-  color: var(--color-stone);
+  width: 40px;
+  height: 40px;
+  color: var(--color-ink-faint);
   transition: color var(--duration-fast);
 }
 
 .upload-zone:hover .upload-svg {
-  color: var(--color-indigo);
+  color: var(--color-accent);
 }
 
 .upload-text {
   font-size: var(--text-base);
   color: var(--color-ink);
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-2);
 }
 
 .upload-hint {
   font-size: var(--text-xs);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
 }
 
 /* Upload progress */
@@ -449,8 +480,8 @@ function formatTime(time) {
 .upload-spinner {
   width: 28px;
   height: 28px;
-  border: 3px solid var(--color-stone-bg);
-  border-top-color: var(--color-indigo);
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -462,47 +493,48 @@ function formatTime(time) {
 .upload-progress-bar {
   width: 200px;
   height: 4px;
-  background: var(--color-stone-bg);
+  background: var(--color-border);
   border-radius: var(--border-radius-full);
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: var(--color-indigo);
+  background: var(--color-accent);
   border-radius: var(--border-radius-full);
   transition: width var(--duration-fast);
 }
 
 /* ===== Document List ===== */
 .doc-list {
-  background: var(--color-cloud);
+  background: var(--color-surface);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
 }
 
 .list-header {
   display: flex;
   padding: var(--space-3) var(--space-5);
-  background: var(--color-mist);
+  background: var(--color-bg);
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .doc-row {
   display: flex;
   align-items: center;
   padding: var(--space-3) var(--space-5);
-  border-bottom: 1px solid var(--color-stone-bg);
+  border-bottom: 1px solid var(--color-border-light);
   transition: background var(--duration-fast);
 }
 
 .doc-row:hover:not(.skeleton) {
-  background: var(--color-mist);
+  background: var(--color-surface-hover);
 }
 
 .doc-row:last-child {
@@ -519,7 +551,7 @@ function formatTime(time) {
 
 .col-type { flex: 0.8; }
 .col-status { flex: 1; }
-.col-time { flex: 1; font-size: var(--text-xs); color: var(--color-stone); }
+.col-time { flex: 1; font-size: var(--text-xs); color: var(--color-ink-muted); }
 .col-action {
   flex: 1;
   display: flex;
@@ -550,24 +582,24 @@ function formatTime(time) {
 }
 
 .file-icon.type-md {
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--color-indigo);
+  background: rgba(59, 130, 246, 0.08);
+  color: #3b82f6;
 }
 
 .file-icon.type-pdf {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--color-danger-bg);
   color: var(--color-danger);
 }
 
 .file-icon.type-txt {
-  background: rgba(148, 163, 184, 0.15);
-  color: var(--color-stone);
+  background: var(--color-surface-hover);
+  color: var(--color-ink-muted);
 }
 
 .type-badge {
   font-size: var(--text-xs);
   padding: 2px 8px;
-  background: var(--color-stone-bg);
+  background: var(--color-surface-hover);
   border-radius: var(--border-radius);
   color: var(--color-ink-muted);
   font-weight: var(--weight-medium);
@@ -590,19 +622,19 @@ function formatTime(time) {
 }
 
 .status-badge.pending {
-  background: rgba(245, 158, 11, 0.08);
+  background: var(--color-warning-bg);
   color: var(--color-warning);
 }
 .status-badge.pending .status-dot { background: var(--color-warning); }
 
 .status-badge.done {
-  background: rgba(16, 185, 129, 0.08);
+  background: var(--color-success-bg);
   color: var(--color-success);
 }
 .status-badge.done .status-dot { background: var(--color-success); }
 
 .status-badge.failed {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--color-danger-bg);
   color: var(--color-danger);
 }
 .status-badge.failed .status-dot { background: var(--color-danger); }
@@ -611,13 +643,13 @@ function formatTime(time) {
   font-size: var(--text-xs);
   padding: 4px 12px;
   border-radius: var(--border-radius);
-  color: var(--color-indigo);
-  background: var(--color-indigo-bg);
+  color: var(--color-accent-dark);
+  background: var(--color-accent-bg);
   transition: all var(--duration-fast);
 }
 
 .btn-retry:hover {
-  background: var(--color-indigo);
+  background: var(--color-accent);
   color: white;
 }
 
@@ -625,13 +657,13 @@ function formatTime(time) {
   font-size: var(--text-xs);
   padding: 4px 12px;
   border-radius: var(--border-radius);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   transition: all var(--duration-fast);
 }
 
 .btn-delete:hover {
   color: var(--color-danger);
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--color-danger-bg);
 }
 
 /* ===== Pagination ===== */
@@ -641,7 +673,7 @@ function formatTime(time) {
   justify-content: center;
   gap: var(--space-4);
   padding: var(--space-4);
-  border-top: 1px solid var(--color-stone-bg);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .page-btn {
@@ -651,15 +683,19 @@ function formatTime(time) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--text-lg);
   color: var(--color-ink-muted);
-  background: var(--color-mist);
+  background: var(--color-surface-hover);
   transition: all var(--duration-fast);
 }
 
+.page-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 .page-btn:hover:not(:disabled) {
-  background: var(--color-indigo-bg);
-  color: var(--color-indigo);
+  background: var(--color-accent-bg);
+  color: var(--color-accent-dark);
 }
 
 .page-btn:disabled {
@@ -669,7 +705,7 @@ function formatTime(time) {
 
 .page-info {
   font-size: var(--text-sm);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
 }
 
 /* ===== Empty State ===== */
@@ -679,23 +715,35 @@ function formatTime(time) {
   align-items: center;
   justify-content: center;
   padding: var(--space-16) var(--space-8);
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .empty-icon {
-  font-size: 48px;
-  opacity: 0.4;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-hover);
+  color: var(--color-ink-faint);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.empty-icon svg {
+  width: 28px;
+  height: 28px;
 }
 
 .empty-state h3 {
   font-size: var(--text-lg);
   font-weight: var(--weight-medium);
-  color: var(--color-ink-muted);
+  color: var(--color-ink);
 }
 
 .empty-state p {
   font-size: var(--text-sm);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   text-align: center;
   max-width: 360px;
   line-height: var(--leading-relaxed);
@@ -704,7 +752,7 @@ function formatTime(time) {
 /* ===== Skeleton ===== */
 .skeleton .skel-bar {
   height: 14px;
-  background: var(--color-stone-bg);
+  background: var(--color-surface-hover);
   border-radius: var(--border-radius);
   animation: shimmer 1.5s infinite;
 }

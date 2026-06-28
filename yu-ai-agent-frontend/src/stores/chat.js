@@ -82,7 +82,7 @@ export const useChatStore = defineStore('chat', {
       })
       const session = res.data || res
       this.sessions.unshift(session)
-      this.currentChatId = session.chatId || session.chat_id
+      this.currentChatId = session.chat_id
       this.currentSession = session
       return session
     },
@@ -90,15 +90,15 @@ export const useChatStore = defineStore('chat', {
     /**
      * Delete a session.
      */
-    async deleteSession(chatId) {
+    async deleteSession(chat_id) {
       await request({
-        url: `/v1/chat/${chatId}`,
+        url: `/v1/chat/${chat_id}`,
         method: 'delete'
       })
       this.sessions = this.sessions.filter(
-        (s) => (s.chatId || s.chat_id) !== chatId
+        (s) => s.chat_id !== chat_id
       )
-      if (this.currentChatId === chatId) {
+      if (this.currentChatId === chat_id) {
         this.currentChatId = null
         this.currentSession = null
         this.messages = []
@@ -108,18 +108,18 @@ export const useChatStore = defineStore('chat', {
     /**
      * Fetch messages for a session.
      */
-    async fetchMessages(chatId, params = {}) {
+    async fetchMessages(chat_id, params = {}) {
       this.loading = true
       try {
         const res = await request({
-          url: `/v1/chat/${chatId}/messages`,
+          url: `/v1/chat/${chat_id}/messages`,
           method: 'get',
           params: { page: 1, page_size: 50, ...params }
         })
         // Backend returns newest-first; reverse for chronological display
         const list = res.data?.list || res.list || []
         this.messages = list.reverse()
-        this.currentChatId = chatId
+        this.currentChatId = chat_id
       } finally {
         this.loading = false
       }
@@ -136,7 +136,7 @@ export const useChatStore = defineStore('chat', {
     async sendMessage(text) {
       if (!text.trim() || !this.currentChatId || this.streaming) return
 
-      const chatId = this.currentChatId
+      const chat_id = this.currentChatId
 
       // Add user message to the list
       this.messages.push({
@@ -159,7 +159,7 @@ export const useChatStore = defineStore('chat', {
         this._streamResolve = resolve
 
         const { cancel } = sendMessageStream(
-          { chatId, message: text },
+          { chat_id, message: text },
           {
             onThinking: (content) => {
               this.thinkingContent = content
@@ -309,7 +309,7 @@ export const useChatStore = defineStore('chat', {
 
     setCurrentSession(session) {
       this.currentSession = session
-      this.currentChatId = session?.chatId || session?.chat_id || null
+      this.currentChatId = session?.chat_id || null
     },
 
     addMessage(message) {

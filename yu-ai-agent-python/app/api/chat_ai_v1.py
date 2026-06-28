@@ -18,8 +18,11 @@ from sse_starlette.sse import EventSourceResponse
 from app.core.database import get_db
 from app.core.logging import get_logger
 from app.core.security import get_current_user_id
+from app.core.redis import redis_client
 from app.ai.llm.dashscope_client import dashscope_client
 from app.ai.rag.retriever import hybrid_retrieve
+from app.ai.memory import MemoryManager
+from app.ai.memory.vector_store_adapter import get_memory_vector_store
 from app.models.chat import ChatMetadata, SSEEventType, make_sse_event
 from app.services import message_service
 
@@ -135,6 +138,24 @@ async def _validate_chat_ownership(db: AsyncSession, user_id: int, chat_id: str)
     return chat
 
 
+async def _load_friend_system_prompt(db: AsyncSession, friend_id: int | None) -> str | None:
+    """加载数字朋友的系统提示词"""
+    if not friend_id:
+        return None
+    from sqlalchemy import select
+    from app.models.db.digital_friend import DigitalFriend
+    result = await db.execute(
+        select(DigitalFriend).where(
+            DigitalFriend.id == friend_id,
+            DigitalFriend.is_deleted == False,
+        )
+    )
+    friend = result.scalar_one_or_none()
+    if friend and friend.system_prompt and friend.status == "ready":
+        return friend.system_prompt
+    return None
+
+
 # ===== 请求模型 =====
 
 from pydantic import BaseModel, Field
@@ -159,23 +180,43 @@ async def sync_chat(
     """
     同步对话接口
 
-    迁移自 Java AiServiceImpl.chat()
-    流程：校验会话 → 保存用户消息 → 获取跨会话记忆 → RAG → 调用 LLM → 保存 AI 消息
+    使用三层记忆架构：
+    - 短期记忆：当前会话上下文
+    - 工作记忆：跨会话近期记忆 + 会话摘要
+    - 长期记忆：用户画像、关键事实、语义记忆
     """
     # 1. 校验会话归属
-    await _validate_chat_ownership(db, user_id, request.chat_id)
+    chat = await _validate_chat_ownership(db, user_id, request.chat_id)
 
     # 2. 保存用户消息到 MySQL
     await message_service.save_user_message(db, request.chat_id, request.message)
-    ## TODO 记忆机制
-    # 3. 获取跨会话记忆（最近 20 条）
-    history = await message_service.get_recent_messages_across_chats(db, user_id, limit=20)
 
-    # 4. 检索知识库
+    # 3. 初始化记忆管理器
+    redis = await redis_client.get_client()
+    memory_manager = MemoryManager(
+        user_id=user_id,
+        chat_id=request.chat_id,
+        redis_client=redis,
+        llm_client=dashscope_client,
+        vector_store=get_memory_vector_store(user_id)
+    )
+
+    # 4. 添加消息到短期记忆
+    await memory_manager.add_message("user", request.message)
+
+    # 5. 构建三层记忆上下文
+    context = await memory_manager.build_context(db, request.message)
+    memory_prompt = memory_manager.build_memory_prompt(context)
+
+    # 6. 检索知识库
     rag_results, rag_sources = await _retrieve_knowledge(request.message, user_id)
 
-    # 5. 构建系统提示词（注入 RAG 上下文 + 跨会话记忆）
-    system_prompt = build_system_prompt(request.emotion_status)
+    # 7. 构建系统提示词（优先使用数字朋友的 system_prompt）
+    friend_system_prompt = await _load_friend_system_prompt(db, getattr(chat, 'friend_id', None))
+    if friend_system_prompt:
+        system_prompt = friend_system_prompt
+    else:
+        system_prompt = build_system_prompt(request.emotion_status)
 
     if rag_results:
         rag_context = _build_rag_context(rag_results)
@@ -187,26 +228,34 @@ async def sync_chat(
 
 如果检索到的内容与用户问题相关，请结合这些内容给出更精准的回答。如果无关，请忽略这些内容，正常回答。"""
 
-    if history:
-        memory_context = _build_memory_context(history)
+    if memory_prompt:
         system_prompt += f"""
 
-以下是用户最近的对话记录，请参考这些上下文来保持回答的连贯性：
+{memory_prompt}"""
 
-{memory_context}"""
-
-    # 6. 组装消息列表
+    # 8. 组装消息列表
     messages = [{"role": "system", "content": system_prompt}]
     messages.append({"role": "user", "content": request.message})
 
-    # 7. 调用 LLM
-    logger.info(f"Sync chat: user={user_id}, chat={request.chat_id}, rag={len(rag_results)}, memory={len(history)}")
+    # 9. 调用 LLM
+    logger.info(f"Sync chat: user={user_id}, chat={request.chat_id}, rag={len(rag_results)}, memory_layers=3")
     content = dashscope_client.chat(messages=messages, stream=False)
 
-    # 8. 保存 AI 回复到 MySQL
+    # 10. 保存 AI 回复到 MySQL
     await message_service.save_assistant_message(db, request.chat_id, content)
 
-    # 9. 返回
+    # 11. 添加回复到短期记忆
+    await memory_manager.add_message("assistant", content)
+
+    # 12. 对话后记忆处理（异步）
+    conversation_messages = [
+        {"role": "user", "content": request.message},
+        {"role": "assistant", "content": content}
+    ]
+    is_important = MemoryManager.is_important_conversation(conversation_messages)
+    await memory_manager.after_conversation(db, conversation_messages, is_important)
+
+    # 13. 返回
     metadata = ChatMetadata(
         tokens_used=None,
         model="mimo-v2.5",
@@ -231,23 +280,43 @@ async def stream_chat(
     """
     流式对话接口（SSE）
 
-    迁移自 Java AiServiceImpl.chat() + SSE 转发逻辑
-    流程：校验会话 → 保存用户消息 → 获取跨会话记忆 → RAG → SSE 流式输出 → 保存完整 AI 消息
+    使用三层记忆架构：
+    - 短期记忆：当前会话上下文
+    - 工作记忆：跨会话近期记忆 + 会话摘要
+    - 长期记忆：用户画像、关键事实、语义记忆
     """
     # 1. 校验会话归属（在 generator 外部执行，失败直接返回错误）
-    await _validate_chat_ownership(db, user_id, request.chat_id)
+    chat = await _validate_chat_ownership(db, user_id, request.chat_id)
 
     # 2. 保存用户消息到 MySQL
     await message_service.save_user_message(db, request.chat_id, request.message)
 
-    # 3. 获取跨会话记忆（最近 20 条）
-    history = await message_service.get_recent_messages_across_chats(db, user_id, limit=20)
+    # 3. 初始化记忆管理器
+    redis = await redis_client.get_client()
+    memory_manager = MemoryManager(
+        user_id=user_id,
+        chat_id=request.chat_id,
+        redis_client=redis,
+        llm_client=dashscope_client,
+        vector_store=get_memory_vector_store(user_id)
+    )
 
-    # 4. 检索知识库
+    # 4. 添加消息到短期记忆
+    await memory_manager.add_message("user", request.message)
+
+    # 5. 构建三层记忆上下文
+    context = await memory_manager.build_context(db, request.message)
+    memory_prompt = memory_manager.build_memory_prompt(context)
+
+    # 6. 检索知识库
     rag_results, rag_sources = await _retrieve_knowledge(request.message, user_id)
 
-    # 5. 构建系统提示词
-    system_prompt = build_system_prompt(request.emotion_status)
+    # 7. 构建系统提示词（优先使用数字朋友的 system_prompt）
+    friend_system_prompt = await _load_friend_system_prompt(db, getattr(chat, 'friend_id', None))
+    if friend_system_prompt:
+        system_prompt = friend_system_prompt
+    else:
+        system_prompt = build_system_prompt(request.emotion_status)
 
     if rag_results:
         rag_context = _build_rag_context(rag_results)
@@ -259,19 +328,16 @@ async def stream_chat(
 
 如果检索到的内容与用户问题相关，请结合这些内容给出更精准的回答。如果无关，请忽略这些内容，正常回答。"""
 
-    if history:
-        memory_context = _build_memory_context(history)
+    if memory_prompt:
         system_prompt += f"""
 
-以下是用户最近的对话记录，请参考这些上下文来保持回答的连贯性：
+{memory_prompt}"""
 
-{memory_context}"""
-
-    # 6. 组装消息列表
+    # 8. 组装消息列表
     messages = [{"role": "system", "content": system_prompt}]
     messages.append({"role": "user", "content": request.message})
 
-    logger.info(f"SSE chat: user={user_id}, chat={request.chat_id}, rag={len(rag_results)}, memory={len(history)}")
+    logger.info(f"SSE chat: user={user_id}, chat={request.chat_id}, rag={len(rag_results)}, memory_layers=3")
 
     async def event_generator():
         full_response = ""
@@ -306,6 +372,17 @@ async def stream_chat(
 
             # 保存完整 AI 回复到 MySQL
             await message_service.save_assistant_message(db, request.chat_id, full_response)
+
+            # 添加回复到短期记忆
+            await memory_manager.add_message("assistant", full_response)
+
+            # 对话后记忆处理（异步）
+            conversation_messages = [
+                {"role": "user", "content": request.message},
+                {"role": "assistant", "content": full_response}
+            ]
+            is_important = MemoryManager.is_important_conversation(conversation_messages)
+            await memory_manager.after_conversation(db, conversation_messages, is_important)
 
             yield "[DONE]"
             logger.info(f"SSE chat completed: user={user_id}, chat={request.chat_id}")

@@ -1,32 +1,78 @@
 <template>
   <div class="super-agent">
-    <div class="page-header">
-      <h1 class="page-title">
-        <span class="title-dot indigo" />
-        超级智能体
-      </h1>
-      <p class="page-subtitle">自主规划，多步推理，完成复杂任务</p>
-    </div>
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-left">
+        <button class="btn-back" @click="$router.push('/')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <div class="header-info">
+          <h1 class="page-title">超级智能体</h1>
+          <p class="page-subtitle">自主规划，多步推理</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-dot" />
+        <span>就绪</span>
+      </div>
+    </header>
 
     <div class="agent-container">
       <!-- Session Panel -->
-      <SessionPanel
-        :sessions="chatStore.sessions"
-        :active-id="chatStore.currentChatId"
-        accent="indigo"
-        app-type="manus"
-        empty-icon="◈"
-        empty-text="还没有任务，点击「新建对话」开始吧"
-        @create="showCreateDialog = true"
-        @select="selectSession"
-        @delete="handleDelete"
-      />
+      <aside class="session-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">任务列表</h2>
+          <button class="btn-new" @click="showCreateDialog = true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            <span>新建</span>
+          </button>
+        </div>
 
-      <!-- Task area -->
-      <div class="task-main">
+        <div class="session-list" v-if="chatStore.sessions.length > 0">
+          <button
+            v-for="session in chatStore.sessions"
+            :key="session.chat_id"
+            class="session-item"
+            :class="{ active: chatStore.currentChatId === session.chat_id }"
+            @click="selectSession(session)"
+          >
+            <div class="session-icon">◈</div>
+            <div class="session-info">
+              <span class="session-title">{{ session.title || '新任务' }}</span>
+              <span class="session-time">{{ formatRelativeTime(session.createTime) }}</span>
+            </div>
+            <button
+              class="session-delete"
+              @click.stop="handleDelete(session)"
+              title="删除任务"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+              </svg>
+            </button>
+          </button>
+        </div>
+
+        <div class="panel-empty" v-else>
+          <div class="empty-icon">◈</div>
+          <p>还没有任务</p>
+          <button class="btn-create" @click="showCreateDialog = true">开始新任务</button>
+        </div>
+      </aside>
+
+      <!-- Main Task Area -->
+      <main class="task-main">
         <!-- No session selected -->
         <div v-if="!chatStore.currentChatId" class="no-session">
-          <div class="no-session-icon">◈</div>
+          <div class="no-session-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+          </div>
           <h3>选择一个任务</h3>
           <p>从左侧选择已有任务，或创建新的对话</p>
         </div>
@@ -147,7 +193,8 @@
                 {{ currentTask.status === 'completed' ? '执行结果' : '错误信息' }}
               </h4>
               <div class="result-content" :class="{ 'result-error': currentTask.status === 'failed' }">
-                {{ currentTask.result }}
+                <MarkdownRenderer v-if="currentTask.status === 'completed'" :content="currentTask.result" />
+                <template v-else>{{ currentTask.result }}</template>
               </div>
             </div>
 
@@ -168,7 +215,10 @@
                 :class="msg.role"
               >
                 <div class="msg-role">{{ msg.role === 'user' ? '你' : 'AI' }}</div>
-                <div class="msg-content">{{ msg.content }}</div>
+                <div class="msg-content">
+                  <MarkdownRenderer v-if="msg.role === 'assistant'" :content="msg.content" />
+                  <template v-else>{{ msg.content }}</template>
+                </div>
                 <div class="msg-time">{{ formatTime(msg.createTime) }}</div>
               </div>
             </div>
@@ -176,7 +226,11 @@
 
           <!-- Empty state (no task yet) -->
           <div v-else-if="!currentTask && !running" class="empty-state">
-            <div class="empty-icon">◈</div>
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+            </div>
             <h3>描述你的任务</h3>
             <p>在上方输入框中描述你想完成的任务，智能体会自动规划并执行</p>
             <div class="example-tasks">
@@ -191,7 +245,7 @@
             </div>
           </div>
         </template>
-      </div>
+      </main>
     </div>
 
     <!-- Create Session Dialog -->
@@ -208,8 +262,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useChatStore } from '@/stores/chat'
 import request from '@/utils/request'
-import SessionPanel from '@/components/SessionPanel.vue'
 import CreateSessionDialog from '@/components/CreateSessionDialog.vue'
+import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 
 const chatStore = useChatStore()
 const taskInput = ref('')
@@ -252,6 +306,10 @@ const elapsedTime = computed(() => {
 
 // ---- Lifecycle ----
 onMounted(() => {
+  // 清除之前的消息，避免显示其他模块的对话记录
+  chatStore.clearMessages()
+  chatStore.currentChatId = null
+  chatStore.currentSession = null
   chatStore.fetchSessions({ app_type: 'manus' })
 })
 
@@ -263,17 +321,15 @@ onUnmounted(() => {
 // ---- Session Management ----
 function selectSession(session) {
   chatStore.setCurrentSession(session)
-  const id = session.chatId || session.chat_id
-  chatStore.fetchMessages(id)
+  chatStore.fetchMessages(session.chat_id)
   currentTask.value = null
   stopPolling()
   stopElapsed()
 }
 
 async function handleDelete(session) {
-  const id = session.chatId || session.chat_id
-  await chatStore.deleteSession(id)
-  if (id === chatStore.currentChatId) {
+  await chatStore.deleteSession(session.chat_id)
+  if (session.chat_id === chatStore.currentChatId) {
     currentTask.value = null
     stopPolling()
     stopElapsed()
@@ -301,7 +357,7 @@ async function submitTask() {
       method: 'post',
       data: {
         message: text,
-        chatId: chatStore.currentChatId
+        chat_id: chatStore.currentChatId
       }
     })
     const task = res.data || res
@@ -385,6 +441,19 @@ function formatTime(time) {
   return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
 }
 
+function formatRelativeTime(time) {
+  if (!time) return ''
+  const d = new Date(time)
+  if (isNaN(d.getTime())) return ''
+  const now = new Date()
+  const diff = now - d
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  if (days === 0) return '今天'
+  if (days === 1) return '昨天'
+  if (days < 7) return `${days}天前`
+  return `${d.getMonth() + 1}/${d.getDate()}`
+}
+
 function formatAction(action) {
   if (!action) return '执行'
   const map = {
@@ -408,52 +477,262 @@ function formatDuration(ms) {
 
 <style scoped>
 .super-agent {
-  min-height: 100vh;
-  background: var(--color-mist);
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--color-bg);
 }
 
+/* ---- Header ---- */
 .page-header {
-  padding: var(--space-5) var(--space-6);
-  background: var(--color-cloud);
-  border-bottom: 1px solid var(--color-stone-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
-.page-title {
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
+.header-left {
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
 
-.title-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.btn-back {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  color: var(--color-ink-muted);
+  transition: all var(--duration-fast);
 }
 
-.title-dot.indigo {
-  background: var(--color-indigo);
-  box-shadow: var(--shadow-glow-indigo);
+.btn-back:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-ink);
+}
+
+.btn-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+  line-height: var(--leading-tight);
 }
 
 .page-subtitle {
-  font-size: var(--text-sm);
-  color: var(--color-stone);
-  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
 }
 
-/* ===== Container ===== */
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-success);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-success);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* ---- Container ---- */
 .agent-container {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
-/* ===== Task Main ===== */
+/* ---- Session Panel ---- */
+.session-panel {
+  width: var(--sidebar-width);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.panel-title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}
+
+.btn-new {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--border-radius);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  transition: all var(--duration-fast);
+}
+
+.btn-new:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+.btn-new svg {
+  width: 14px;
+  height: 14px;
+}
+
+.session-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--border-radius);
+  text-align: left;
+  transition: all var(--duration-fast);
+  position: relative;
+}
+
+.session-item:hover {
+  background: var(--color-surface-hover);
+}
+
+.session-item.active {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.session-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #3b82f6;
+  border-radius: var(--border-radius);
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+
+.session-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-title {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-time {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-ink-faint);
+  margin-top: 2px;
+}
+
+.session-delete {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  color: var(--color-ink-faint);
+  opacity: 0;
+  transition: all var(--duration-fast);
+  flex-shrink: 0;
+}
+
+.session-item:hover .session-delete {
+  opacity: 1;
+}
+
+.session-delete:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.session-delete svg {
+  width: 14px;
+  height: 14px;
+}
+
+.panel-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  color: var(--color-ink-muted);
+}
+
+.empty-icon {
+  font-size: 32px;
+  color: #93c5fd;
+  opacity: 0.5;
+}
+
+.panel-empty p {
+  font-size: var(--text-sm);
+}
+
+.btn-create {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--border-radius);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition: all var(--duration-fast);
+}
+
+.btn-create:hover {
+  background: var(--color-primary-light);
+}
+
+/* ---- Task Main ---- */
 .task-main {
   flex: 1;
   overflow-y: auto;
@@ -463,62 +742,77 @@ function formatDuration(ms) {
   gap: var(--space-5);
 }
 
-/* ===== No Session ===== */
+/* ---- No Session ---- */
 .no-session {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
-  color: var(--color-stone);
+  gap: var(--space-4);
 }
 
 .no-session-icon {
-  font-size: 48px;
-  color: var(--color-indigo-light);
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.08);
+  color: #3b82f6;
+  border-radius: 50%;
   opacity: 0.6;
+}
+
+.no-session-icon svg {
+  width: 28px;
+  height: 28px;
 }
 
 .no-session h3 {
   font-size: var(--text-lg);
   font-weight: var(--weight-medium);
-  color: var(--color-ink-muted);
+  color: var(--color-ink);
 }
 
 .no-session p {
   font-size: var(--text-sm);
+  color: var(--color-ink-muted);
 }
 
-/* ===== Task Input ===== */
+/* ---- Task Input ---- */
 .task-input-area {
-  background: var(--color-cloud);
+  background: var(--color-surface);
   border-radius: var(--border-radius-lg);
   padding: var(--space-5);
-  box-shadow: var(--shadow-sm);
-  flex-shrink: 0;
+  border: 1px solid var(--color-border);
 }
 
 .task-textarea {
   width: 100%;
-  border: 1px solid var(--color-stone-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-base);
   resize: vertical;
-  min-height: 72px;
-  font-family: var(--font-sans);
+  min-height: 80px;
   transition: border-color var(--duration-fast);
   line-height: var(--leading-normal);
+  color: var(--color-ink);
+  background: var(--color-bg);
+}
+
+.task-textarea::placeholder {
+  color: var(--color-ink-faint);
 }
 
 .task-textarea:focus {
-  border-color: var(--color-indigo);
-  box-shadow: 0 0 0 3px var(--color-indigo-bg);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .task-textarea:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -534,7 +828,7 @@ function formatDuration(ms) {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-6);
-  background: var(--color-indigo);
+  background: var(--color-primary);
   color: white;
   border-radius: var(--border-radius);
   font-weight: var(--weight-medium);
@@ -543,7 +837,7 @@ function formatDuration(ms) {
 }
 
 .btn-run:hover:not(:disabled) {
-  background: #4f46e5;
+  background: var(--color-primary-light);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -574,30 +868,32 @@ function formatDuration(ms) {
 
 .btn-cancel {
   padding: var(--space-3) var(--space-5);
-  background: var(--color-stone-bg);
+  background: var(--color-surface-hover);
   color: var(--color-ink-muted);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   font-size: var(--text-sm);
   transition: all var(--duration-fast);
 }
 
 .btn-cancel:hover {
-  background: var(--color-danger);
-  color: white;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
 }
 
 .task-hint {
   margin-top: var(--space-2);
   font-size: 11px;
-  color: var(--color-stone-light);
+  color: var(--color-ink-faint);
 }
 
-/* ===== Task Panel ===== */
+/* ---- Task Panel ---- */
 .task-panel {
-  background: var(--color-cloud);
+  background: var(--color-surface);
   border-radius: var(--border-radius-lg);
   padding: var(--space-5);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
   animation: fadeSlideIn var(--duration-normal) var(--ease-out);
 }
 
@@ -626,23 +922,49 @@ function formatDuration(ms) {
   gap: var(--space-2);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--border-radius-full);
 }
 
-.status-dot {
-  width: 8px;
-  height: 8px;
+.status-badge.pending {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.status-badge.running {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.status-badge.completed {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.status-badge.failed {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.status-badge.cancelled {
+  background: var(--color-surface-hover);
+  color: var(--color-ink-muted);
+}
+
+.status-badge .status-dot {
+  width: 6px;
+  height: 6px;
+  background: currentColor;
   border-radius: 50%;
 }
 
-.status-badge.pending .status-dot { background: var(--color-warning); }
-.status-badge.running .status-dot { background: var(--color-indigo); animation: pulse 1.2s infinite; }
-.status-badge.completed .status-dot { background: var(--color-success); }
-.status-badge.failed .status-dot { background: var(--color-danger); }
-.status-badge.cancelled .status-dot { background: var(--color-stone); }
+.status-badge.running .status-dot {
+  animation: pulse 1.2s infinite;
+}
 
 .task-time {
   font-size: var(--text-xs);
-  color: var(--color-stone);
+  color: var(--color-ink-faint);
 }
 
 /* ===== Pending State ===== */
@@ -663,8 +985,8 @@ function formatDuration(ms) {
 .pending-ring {
   position: absolute;
   inset: 0;
-  border: 2px solid var(--color-indigo-bg);
-  border-top-color: var(--color-indigo);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 1.5s linear infinite;
 }
@@ -672,13 +994,13 @@ function formatDuration(ms) {
 .pending-ring.delay-1 {
   inset: 6px;
   animation-delay: 0.3s;
-  border-top-color: var(--color-indigo-light);
+  border-top-color: #60a5fa;
 }
 
 .pending-ring.delay-2 {
   inset: 12px;
   animation-delay: 0.6s;
-  border-top-color: var(--color-indigo);
+  border-top-color: #3b82f6;
   opacity: 0.6;
 }
 
@@ -688,7 +1010,7 @@ function formatDuration(ms) {
 
 .state-desc {
   font-size: var(--text-sm);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
 }
 
 /* ===== Running State ===== */
@@ -714,7 +1036,7 @@ function formatDuration(ms) {
 .spinner-svg {
   width: 100%;
   height: 100%;
-  color: var(--color-indigo);
+  color: #3b82f6;
   animation: spin 1s linear infinite;
 }
 
@@ -730,7 +1052,7 @@ function formatDuration(ms) {
 
 .running-elapsed {
   font-size: var(--text-sm);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   margin-top: var(--space-1);
 }
 
@@ -739,17 +1061,17 @@ function formatDuration(ms) {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
-  background: var(--color-indigo-bg);
+  background: rgba(59, 130, 246, 0.06);
   border-radius: var(--border-radius);
   font-size: var(--text-sm);
-  color: var(--color-indigo);
+  color: #3b82f6;
 }
 
 .hint-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--color-indigo);
+  background: #3b82f6;
   animation: pulse 1.5s infinite;
   flex-shrink: 0;
 }
@@ -758,11 +1080,11 @@ function formatDuration(ms) {
 .steps-section {
   margin-top: var(--space-5);
   padding-top: var(--space-5);
-  border-top: 1px solid var(--color-stone-bg);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .section-title {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   color: var(--color-ink-muted);
   margin-bottom: var(--space-4);
@@ -796,7 +1118,7 @@ function formatDuration(ms) {
   top: 32px;
   bottom: 0;
   width: 2px;
-  background: var(--color-stone-bg);
+  background: var(--color-border-light);
 }
 
 .step-marker {
@@ -812,19 +1134,19 @@ function formatDuration(ms) {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--color-indigo-bg);
-  color: var(--color-indigo);
+  background: rgba(59, 130, 246, 0.08);
+  color: #3b82f6;
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
 }
 
 .step-item.success .step-num {
-  background: rgba(16, 185, 129, 0.1);
+  background: var(--color-success-bg);
   color: var(--color-success);
 }
 
 .step-item.failed .step-num {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--color-danger-bg);
   color: var(--color-danger);
 }
 
@@ -848,23 +1170,23 @@ function formatDuration(ms) {
 
 .step-duration {
   font-size: 11px;
-  color: var(--color-stone);
+  color: var(--color-ink-faint);
   padding: 1px 6px;
-  background: var(--color-stone-bg);
+  background: var(--color-surface-hover);
   border-radius: var(--border-radius-full);
 }
 
 .step-thought {
   margin-top: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  background: var(--color-mist);
+  background: var(--color-bg);
   border-radius: var(--border-radius);
-  border-left: 3px solid var(--color-indigo-light);
+  border-left: 3px solid #93c5fd;
 }
 
 .thought-label {
   font-size: 11px;
-  color: var(--color-indigo);
+  color: #3b82f6;
   font-weight: var(--weight-medium);
   display: block;
   margin-bottom: 2px;
@@ -879,7 +1201,7 @@ function formatDuration(ms) {
 .step-detail {
   margin-top: var(--space-2);
   font-size: var(--text-sm);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   line-height: var(--leading-relaxed);
 }
 
@@ -888,7 +1210,7 @@ function formatDuration(ms) {
   font-size: var(--text-sm);
   color: var(--color-danger);
   padding: var(--space-2) var(--space-3);
-  background: rgba(239, 68, 68, 0.06);
+  background: var(--color-danger-bg);
   border-radius: var(--border-radius);
 }
 
@@ -896,7 +1218,7 @@ function formatDuration(ms) {
 .result-section {
   margin-top: var(--space-5);
   padding-top: var(--space-5);
-  border-top: 1px solid var(--color-stone-bg);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .result-content {
@@ -906,30 +1228,31 @@ function formatDuration(ms) {
   white-space: pre-wrap;
   word-break: break-word;
   padding: var(--space-4);
-  background: var(--color-mist);
+  background: var(--color-bg);
   border-radius: var(--border-radius);
+  border: 1px solid var(--color-border-light);
 }
 
 .result-content.result-error {
-  background: rgba(239, 68, 68, 0.04);
+  background: var(--color-danger-bg);
   color: var(--color-danger);
-  border-left: 3px solid var(--color-danger);
+  border-color: var(--color-danger);
 }
 
 /* ===== Cancelled ===== */
 .state-cancelled {
   padding: var(--space-6) 0;
   text-align: center;
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   font-size: var(--text-sm);
 }
 
 /* ===== Messages Panel ===== */
 .messages-panel {
-  background: var(--color-cloud);
+  background: var(--color-surface);
   border-radius: var(--border-radius-lg);
   padding: var(--space-5);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
 }
 
 .msg-list {
@@ -955,7 +1278,7 @@ function formatDuration(ms) {
 .msg-role {
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
 }
 
 .msg-content {
@@ -969,20 +1292,21 @@ function formatDuration(ms) {
 }
 
 .msg-item.user .msg-content {
-  background: var(--color-indigo);
+  background: var(--color-primary);
   color: white;
   border-bottom-right-radius: var(--space-1);
 }
 
 .msg-item.assistant .msg-content {
-  background: var(--color-mist);
+  background: var(--color-bg);
   color: var(--color-ink);
   border-bottom-left-radius: var(--space-1);
+  border: 1px solid var(--color-border-light);
 }
 
 .msg-time {
   font-size: 11px;
-  color: var(--color-stone-light);
+  color: var(--color-ink-faint);
 }
 
 /* ===== Empty State ===== */
@@ -992,21 +1316,32 @@ function formatDuration(ms) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
-  color: var(--color-stone);
+  gap: var(--space-4);
+  color: var(--color-ink-muted);
   padding: var(--space-8);
 }
 
 .empty-icon {
-  font-size: 48px;
-  color: var(--color-indigo-light);
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.06);
+  color: #93c5fd;
+  border-radius: 50%;
   opacity: 0.5;
+}
+
+.empty-icon svg {
+  width: 28px;
+  height: 28px;
 }
 
 .empty-state h3 {
   font-size: var(--text-lg);
   font-weight: var(--weight-medium);
-  color: var(--color-ink-muted);
+  color: var(--color-ink);
 }
 
 .empty-state p {
@@ -1027,8 +1362,8 @@ function formatDuration(ms) {
 
 .example-chip {
   padding: var(--space-2) var(--space-4);
-  background: var(--color-cloud);
-  border: 1px solid var(--color-stone-light);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-full);
   font-size: var(--text-sm);
   color: var(--color-ink-muted);
@@ -1036,9 +1371,9 @@ function formatDuration(ms) {
 }
 
 .example-chip:hover {
-  border-color: var(--color-indigo);
-  color: var(--color-indigo);
-  background: var(--color-indigo-bg);
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.04);
 }
 
 /* ===== Animations ===== */
@@ -1049,8 +1384,22 @@ function formatDuration(ms) {
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
+  .session-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: var(--z-sticky);
+    transform: translateX(-100%);
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  .session-panel.open {
+    transform: translateX(0);
+  }
+
   .agent-container {
-    flex-direction: column;
+    position: relative;
   }
 
   .task-main {

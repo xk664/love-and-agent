@@ -17,7 +17,7 @@ const BASE = import.meta.env.VITE_API_BASE || '/api'
  * - [DONE]:   terminal marker
  *
  * @param {Object} params
- * @param {string} params.chatId - Chat session ID
+ * @param {string} params.chat_id - Chat session ID
  * @param {string} params.message - User message text
  * @param {Object} callbacks
  * @param {Function} callbacks.onThinking - Called when AI starts thinking
@@ -27,12 +27,12 @@ const BASE = import.meta.env.VITE_API_BASE || '/api'
  * @param {Function} callbacks.onDone - Called when stream completes
  * @returns {{ cancel: () => void }} - Cancel function to abort the stream
  */
-export function sendMessageStream({ chatId, message }, { onThinking, onAnswer, onMetadata, onError, onDone }) {
+export function sendMessageStream({ chat_id, message }, { onThinking, onAnswer, onMetadata, onError, onDone }) {
   const { controller, cancel } = createSSEController()
 
   connectSSE(
     `${BASE}/v1/ai/love/chat/sse`,
-    { chatId, message },
+    { chat_id, message },
     {
       signal: controller.signal,
       onEvent(type, data) {

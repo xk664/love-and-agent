@@ -14,6 +14,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -21,7 +22,7 @@ body {
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   color: var(--color-ink);
-  background: var(--color-mist);
+  background: var(--color-bg);
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -36,6 +37,7 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+  font-size: inherit;
 }
 
 input,
@@ -55,10 +57,10 @@ img {
   max-width: 100%;
 }
 
-/* ---- Scrollbar ---- */
+/* ---- Scrollbar - Refined ---- */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -66,34 +68,37 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-stone-light);
+  background: var(--color-border);
   border-radius: var(--border-radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-stone);
+  background: var(--color-ink-faint);
 }
 
 /* ---- Selection ---- */
 ::selection {
-  background: var(--color-indigo);
+  background: var(--color-accent);
   color: white;
 }
 
-/* ---- Focus Ring ---- */
+/* ---- Focus Ring - Accessible ---- */
 :focus-visible {
-  outline: 2px solid var(--color-indigo);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* ---- Utility Classes ---- */
-.text-coral { color: var(--color-coral); }
-.text-indigo { color: var(--color-indigo); }
-.text-stone { color: var(--color-stone); }
-.text-ink { color: var(--color-ink); }
+.text-primary { color: var(--color-primary); }
+.text-accent { color: var(--color-accent); }
+.text-success { color: var(--color-success); }
+.text-danger { color: var(--color-danger); }
+.text-muted { color: var(--color-ink-muted); }
+.text-faint { color: var(--color-ink-faint); }
 
-.bg-mist { background: var(--color-mist); }
-.bg-cloud { background: var(--color-cloud); }
+.bg-surface { background: var(--color-surface); }
+.bg-warm { background: var(--color-bg-warm); }
 
 /* ---- Transitions ---- */
 .fade-enter-active,
@@ -106,19 +111,35 @@ img {
   opacity: 0;
 }
 
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform var(--duration-normal) var(--ease-out),
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform var(--duration-slow) var(--ease-spring),
               opacity var(--duration-normal) var(--ease-out);
 }
 
-.slide-enter-from {
-  transform: translateY(8px);
+.slide-up-enter-from {
+  transform: translateY(12px);
   opacity: 0;
 }
 
-.slide-leave-to {
+.slide-up-leave-to {
   transform: translateY(-8px);
+  opacity: 0;
+}
+
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform var(--duration-slow) var(--ease-spring),
+              opacity var(--duration-normal) var(--ease-out);
+}
+
+.slide-right-enter-from {
+  transform: translateX(-12px);
+  opacity: 0;
+}
+
+.slide-right-leave-to {
+  transform: translateX(12px);
   opacity: 0;
 }
 
@@ -130,5 +151,12 @@ img {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---- Print ---- */
+@media print {
+  body {
+    background: white;
   }
 }

@@ -129,6 +129,7 @@ class DashScopeClient:
         self,
         texts: List[str],
         model: Optional[str] = None,
+        batch_size: int = 25,  # API 限制最多 25 个
         **kwargs
     ) -> List[List[float]]:
         """
@@ -137,23 +138,30 @@ class DashScopeClient:
         Args:
             texts: List of input texts
             model: Embedding model name (default: from config)
+            batch_size: 每批最多处理的数量（API 限制最多 25）
         """
         model = model or settings.dashscope.DASHSCOPE_EMBEDDING_MODEL
         client = self._embedding_client or self._client
 
-        try:
-            response = client.embeddings.create(
-                model=model,
-                input=texts,
-            )
+        all_embeddings = []
 
-            embeddings = [item.embedding for item in response.data]
-            logger.debug(f"Generated {len(embeddings)} embeddings with model {model}")
-            return embeddings
+        # 分批处理
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i:i + batch_size]
+            try:
+                response = client.embeddings.create(
+                    model=model,
+                    input=batch,
+                )
+                batch_embeddings = [item.embedding for item in response.data]
+                all_embeddings.extend(batch_embeddings)
+                logger.debug(f"Generated {len(batch_embeddings)} embeddings (batch {i // batch_size + 1})")
+            except Exception as e:
+                logger.error(f"Batch embedding generation failed at batch {i // batch_size + 1}: {str(e)}")
+                raise
 
-        except Exception as e:
-            logger.error(f"Batch embedding generation failed: {str(e)}")
-            raise
+        logger.debug(f"Total generated {len(all_embeddings)} embeddings with model {model}")
+        return all_embeddings
 
     def chat(
         self,

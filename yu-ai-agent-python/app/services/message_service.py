@@ -31,9 +31,27 @@ async def save_message(
     )
     chat = chat_result.scalar_one_or_none()
     if not chat:
-        raise BusinessException("会话不存在")
+        raise BusinessException(code=400, message="会话不存在")
 
-    # 2. 创建消息
+    # 2. 检查是否是第一条用户消息，如果是则更新标题
+    if role == "user":
+        msg_count_result = await db.execute(
+            select(func.count())
+            .select_from(Message)
+            .where(Message.chat_id == chat_id, Message.is_deleted == False)
+        )
+        msg_count = msg_count_result.scalar() or 0
+
+        if msg_count == 0:
+            # 第一条消息，更新标题为内容前20个字
+            title = content[:20].strip()
+            if len(content) > 20:
+                title += "..."
+            if not title:
+                title = "新会话"
+            chat.title = title
+
+    # 3. 创建消息
     message = Message(
         chat_id=chat_id,
         role=role,
@@ -44,7 +62,7 @@ async def save_message(
     await db.flush()
     await db.refresh(message)
 
-    # 3. 更新会话最后消息时间
+    # 4. 更新会话最后消息时间
     chat.last_message_time = datetime.now()
     await db.flush()
 
@@ -94,7 +112,7 @@ async def get_message_history(
     )
     chat = chat_result.scalar_one_or_none()
     if not chat:
-        raise BusinessException("会话不存在")
+        raise BusinessException(code=400, message="会话不存在")
 
     # 2. 统计总数
     count_query = (

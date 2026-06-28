@@ -16,9 +16,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BusinessException
 from app.core.logging import get_logger
+from app.core.redis import redis_client
 from app.models.db.agent_task import AgentTask
 from app.models.db.chat import Chat
 from app.models.db.message import Message
+from app.ai.memory import MemoryManager
+from app.ai.memory.vector_store_adapter import get_memory_vector_store
 
 logger = get_logger(__name__)
 
@@ -205,10 +208,12 @@ async def _agent_task_run(task_id: str, user_id: int, chat_id: str, message: str
     2. 创建 ManusAgent / ReactAgent
     3. 执行 Agent
     4. 直接更新任务状态 + 保存 AI 结果到 message 表
+    5. 更新用户画像（三层记忆架构）
     """
     from app.ai.agent.manus import ManusAgent
     from app.ai.agent.react import ReactAgent
     from app.ai.tools import tool_registry
+    from app.ai.llm.dashscope_client import dashscope_client
     from app.core.database import async_session
 
     try:
@@ -244,6 +249,33 @@ async def _agent_task_run(task_id: str, user_id: int, chat_id: str, message: str
         async with async_session() as db:
             await _complete_task(db, task_id, state.final_answer, state.to_callback_steps())
             await db.commit()
+
+        # 6. 更新用户画像（三层记忆架构）
+        try:
+            async with async_session() as db:
+                redis = await redis_client.get_client()
+                memory_manager = MemoryManager(
+                    user_id=user_id,
+                    chat_id=chat_id,
+                    redis_client=redis,
+                    llm_client=dashscope_client,
+                    vector_store=get_memory_vector_store(user_id)
+                )
+
+                # 构建对话消息
+                conversation_messages = [
+                    {"role": "user", "content": message},
+                    {"role": "assistant", "content": state.final_answer or ""}
+                ]
+
+                # 智能体任务通常比较重要，标记为重要对话
+                is_important = True
+                await memory_manager.after_conversation(db, conversation_messages, is_important)
+                await db.commit()
+
+                logger.info("智能体任务画像更新完成: task_id=%s", task_id)
+        except Exception as memory_error:
+            logger.warning(f"智能体任务画像更新失败（不影响任务完成）: {memory_error}")
 
         logger.info("Agent 任务完成: task_id=%s, steps=%d", task_id, state.current_step)
 

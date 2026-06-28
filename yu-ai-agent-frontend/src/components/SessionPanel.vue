@@ -2,9 +2,12 @@
   <aside class="session-panel">
     <!-- Header -->
     <div class="panel-header">
-      <button class="btn-new" :class="accent" @click="$emit('create')">
-        <span class="btn-new-icon">+</span>
-        <span>新建对话</span>
+      <h2 class="panel-title">对话列表</h2>
+      <button class="btn-new" @click="$emit('create')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        <span>新建</span>
       </button>
     </div>
 
@@ -17,23 +20,21 @@
         :class="{ active: getId(session) === activeId }"
         @click="$emit('select', session)"
       >
-        <div class="session-main">
+        <div class="session-icon" :class="getTypeClass(session)">
+          {{ getTypeIcon(session) }}
+        </div>
+        <div class="session-info">
           <span class="session-title">{{ session.title || '新对话' }}</span>
           <span class="session-time">{{ formatTime(getTime(session)) }}</span>
         </div>
-
-        <!-- App type tag -->
-        <span v-if="showTypeTag" class="session-tag" :class="getTypeClass(session)">
-          {{ getTypeLabel(session) }}
-        </span>
-
-        <!-- Delete button -->
         <button
-          class="btn-delete"
+          class="session-delete"
           @click.stop="confirmDelete(session)"
           title="删除对话"
         >
-          ✕
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+          </svg>
         </button>
       </div>
 
@@ -45,7 +46,11 @@
 
       <!-- Empty state -->
       <div v-if="sessions.length === 0 && !loading" class="empty-state">
-        <div class="empty-icon">{{ emptyIcon }}</div>
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+          </svg>
+        </div>
         <p class="empty-text">{{ emptyText }}</p>
       </div>
     </div>
@@ -60,10 +65,7 @@ import { useChatStore } from '@/stores/chat'
 const props = defineProps({
   sessions: { type: Array, default: () => [] },
   activeId: { type: [String, Number, null], default: null },
-  accent: { type: String, default: '' },          // 'coral' | 'indigo'
-  appType: { type: String, default: '' },          // filter for fetching
-  showTypeTag: { type: Boolean, default: false },   // show app_type badge
-  emptyIcon: { type: String, default: '☰' },
+  appType: { type: String, default: '' },
   emptyText: { type: String, default: '还没有对话，开始第一次聊天吧' },
   loading: { type: Boolean, default: false }
 })
@@ -78,7 +80,7 @@ const hasMore = ref(true)
 
 // ---- Helpers ----
 function getId(s) {
-  return s.chatId || s.chat_id || s.id
+  return s.chat_id || s.id
 }
 
 function getTime(s) {
@@ -93,17 +95,20 @@ function formatTime(time) {
   if (isToday) {
     return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
   }
+  const days = Math.floor((now - d) / (1000 * 60 * 60 * 24))
+  if (days === 1) return '昨天'
+  if (days < 7) return `${days}天前`
   return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
-function getTypeLabel(session) {
+function getTypeIcon(session) {
   const type = session.appType || session.app_type
-  return type === 'love_app' ? '恋爱大师' : type === 'manus' ? '智能体' : type
+  return type === 'love_app' ? '♡' : '◈'
 }
 
 function getTypeClass(session) {
   const type = session.appType || session.app_type
-  return type === 'love_app' ? 'tag-coral' : type === 'manus' ? 'tag-indigo' : ''
+  return type === 'love_app' ? 'type-love' : type === 'manus' ? 'type-agent' : ''
 }
 
 // ---- Delete ----
@@ -154,8 +159,8 @@ async function handleScroll() {
 <style scoped>
 .session-panel {
   width: 260px;
-  background: var(--color-cloud);
-  border-right: 1px solid var(--color-stone-bg);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -163,53 +168,40 @@ async function handleScroll() {
 
 /* ---- Header ---- */
 .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: var(--space-4);
-  border-bottom: 1px solid var(--color-stone-bg);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.panel-title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
 }
 
 .btn-new {
-  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-3);
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-primary);
+  color: white;
   border-radius: var(--border-radius);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   transition: all var(--duration-fast);
 }
 
-.btn-new.coral {
-  background: var(--color-coral-bg);
-  color: var(--color-coral);
-}
-.btn-new.coral:hover {
-  background: var(--color-coral);
-  color: white;
+.btn-new:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
 }
 
-.btn-new.indigo {
-  background: var(--color-indigo-bg);
-  color: var(--color-indigo);
-}
-.btn-new.indigo:hover {
-  background: var(--color-indigo);
-  color: white;
-}
-
-.btn-new:not(.coral):not(.indigo) {
-  background: var(--color-stone-bg);
-  color: var(--color-ink-muted);
-}
-.btn-new:not(.coral):not(.indigo):hover {
-  background: var(--color-ink-muted);
-  color: white;
-}
-
-.btn-new-icon {
-  font-size: var(--text-lg);
-  line-height: 1;
+.btn-new svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* ---- List ---- */
@@ -222,8 +214,8 @@ async function handleScroll() {
 .session-item {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-3);
+  gap: var(--space-3);
+  padding: var(--space-3);
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--duration-fast);
@@ -231,22 +223,39 @@ async function handleScroll() {
 }
 
 .session-item:hover {
-  background: var(--color-mist);
+  background: var(--color-surface-hover);
 }
 
-.session-item:hover .btn-delete {
+.session-item:hover .session-delete {
   opacity: 1;
 }
 
 .session-item.active {
-  background: var(--color-stone-bg);
+  background: var(--color-accent-bg);
 }
 
-.session-item.active.coral-active {
-  background: var(--color-coral-bg);
+.session-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  font-size: var(--text-sm);
+  flex-shrink: 0;
 }
 
-.session-main {
+.session-icon.type-love {
+  background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+  color: #ec4899;
+}
+
+.session-icon.type-agent {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #3b82f6;
+}
+
+.session-info {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -256,6 +265,7 @@ async function handleScroll() {
 
 .session-title {
   font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   color: var(--color-ink);
   white-space: nowrap;
   overflow: hidden;
@@ -264,42 +274,31 @@ async function handleScroll() {
 
 .session-time {
   font-size: var(--text-xs);
-  color: var(--color-stone);
-}
-
-/* ---- Type Tag ---- */
-.session-tag {
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: var(--border-radius-full);
-  font-weight: var(--weight-medium);
-  flex-shrink: 0;
-}
-
-.tag-coral {
-  background: var(--color-coral-bg);
-  color: var(--color-coral);
-}
-
-.tag-indigo {
-  background: var(--color-indigo-bg);
-  color: var(--color-indigo);
+  color: var(--color-ink-faint);
 }
 
 /* ---- Delete ---- */
-.btn-delete {
-  opacity: 0;
-  color: var(--color-stone);
-  font-size: var(--text-xs);
-  padding: var(--space-1);
+.session-delete {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--border-radius);
+  color: var(--color-ink-faint);
+  opacity: 0;
   transition: all var(--duration-fast);
   flex-shrink: 0;
 }
 
-.btn-delete:hover {
+.session-delete:hover {
+  background: var(--color-danger-bg);
   color: var(--color-danger);
-  background: rgba(239, 68, 68, 0.08);
+}
+
+.session-delete svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* ---- Loading More ---- */
@@ -310,14 +309,14 @@ async function handleScroll() {
   gap: var(--space-2);
   padding: var(--space-4);
   font-size: var(--text-xs);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
 }
 
 .loading-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--color-stone);
+  background: var(--color-ink-muted);
   animation: pulse 1s infinite;
 }
 
@@ -337,13 +336,25 @@ async function handleScroll() {
 }
 
 .empty-icon {
-  font-size: 32px;
-  color: var(--color-stone-light);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-hover);
+  color: var(--color-ink-faint);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.empty-icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .empty-text {
   font-size: var(--text-sm);
-  color: var(--color-stone);
+  color: var(--color-ink-muted);
   text-align: center;
   line-height: var(--leading-relaxed);
 }
@@ -353,7 +364,7 @@ async function handleScroll() {
   .session-panel {
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid var(--color-stone-bg);
+    border-bottom: 1px solid var(--color-border);
   }
 }
 </style>

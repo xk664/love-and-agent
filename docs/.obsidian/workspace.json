@@ -11,10 +11,14 @@
             "id": "102197b57d891e0d",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "tasks.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "tasks"
             }
           }
         ]
@@ -74,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "7e4c7e2514ae2588",
@@ -153,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "rag.md",
+                "file": "tasks.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "rag 的大纲"
+              "title": "tasks 的大纲"
             }
           }
         ],
@@ -167,8 +170,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -183,14 +185,15 @@
   },
   "active": "102197b57d891e0d",
   "lastOpenFiles": [
-    "rag.md",
-    "chunk分块.md",
+    "prd.md",
     "tasks.md",
     "chunk.md",
+    "rag.md",
     "javaToPy.md",
-    "chunking-design.md",
+    "智能体实现.md",
     "TODO.md",
-    "prd.md",
+    "chunk分块.md",
+    "chunking-design.md",
     "tasks.md.tmp.13688.62843e9d9fc9",
     "tasks.md.tmp.23284.4e6a7c320949",
     "tasks.md.tmp.23284.4ada550c4cf2",

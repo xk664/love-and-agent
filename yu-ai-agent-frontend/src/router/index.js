@@ -34,6 +34,12 @@ const routes = [
         name: 'Knowledge',
         component: () => import('@/views/Knowledge.vue'),
         meta: { title: '知识库' }
+      },
+      {
+        path: 'friend',
+        name: 'DigitalFriend',
+        component: () => import('@/views/DigitalFriend.vue'),
+        meta: { title: '数字朋友', accent: 'violet' }
       }
     ]
   },

@@ -68,6 +68,7 @@ class ChatCreateRequest(BaseModel):
     app_type: str = Field(..., description="应用类型: love_app / manus")
     emotion_status: str | None = Field(None, description="情感状态: single/relationship/married，love_app 必填")
     title: str | None = Field(None, description="会话标题，不传则自动生成")
+    friend_id: int | None = Field(None, description="关联的数字朋友ID")
 
 
 class ChatInfo(BaseModel):

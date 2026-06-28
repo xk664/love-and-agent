@@ -25,6 +25,7 @@ async def create_chat(
         app_type=request.app_type,
         emotion_status=request.emotion_status,
         title=request.title,
+        friend_id=request.friend_id,
     )
     return {"code": 200, "message": "success", "data": result}
 
