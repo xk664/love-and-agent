@@ -8,6 +8,12 @@
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
+        <!-- Mobile: toggle friends panel -->
+        <button class="btn-toggle-panel" @click="panelOpen = !panelOpen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+        </button>
         <div class="header-info">
           <h1 class="page-title">数字朋友</h1>
           <p class="page-subtitle">创建懂你的AI伙伴</p>
@@ -20,8 +26,11 @@
     </header>
 
     <div class="main-container">
+      <!-- Mobile Overlay -->
+      <div v-if="panelOpen" class="panel-overlay" @click="panelOpen = false" />
+
       <!-- Friends Panel -->
-      <aside class="friends-panel">
+      <aside class="friends-panel" :class="{ open: panelOpen }">
         <div class="panel-header">
           <h2 class="panel-title">朋友列表</h2>
           <button class="btn-new" @click="showCreateDialog = true">
@@ -303,6 +312,7 @@ const messages = ref([])
 const inputText = ref('')
 const distillStatus = ref(null)
 const pollingTimer = ref(null)
+const panelOpen = ref(false)
 
 // Dialog states
 const showCreateDialog = ref(false)
@@ -355,6 +365,7 @@ async function selectFriend(friend) {
   distillStatus.value = null
   messages.value = []
   currentChatId.value = null
+  panelOpen.value = false
 
   // Check distill status
   await checkDistillStatus()
@@ -1398,11 +1409,16 @@ watch(
 
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
+  .btn-toggle-panel {
+    display: flex;
+  }
+
   .friends-panel {
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
+    width: 280px;
     z-index: var(--z-sticky);
     transform: translateX(-100%);
     transition: transform var(--duration-slow) var(--ease-out);
@@ -1410,6 +1426,13 @@ watch(
 
   .friends-panel.open {
     transform: translateX(0);
+  }
+
+  .panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: calc(var(--z-sticky) - 1);
   }
 
   .main-container {
@@ -1442,5 +1465,26 @@ watch(
     justify-content: flex-end;
     margin-top: var(--space-2);
   }
+}
+
+.btn-toggle-panel {
+  display: none;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  color: var(--color-ink-muted);
+  transition: all var(--duration-fast);
+}
+
+.btn-toggle-panel:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-ink);
+}
+
+.btn-toggle-panel svg {
+  width: 18px;
+  height: 18px;
 }
 </style>

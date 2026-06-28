@@ -9,6 +9,7 @@ sse-starlette==2.2.1
 sqlalchemy==2.0.36
 aiomysql==0.2.0
 pymysql==1.1.1
+greenlet==3.1.1
 
 # Database (PostgreSQL - for PgVector)
 asyncpg==0.30.0
