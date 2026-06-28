@@ -488,7 +488,7 @@ function formatDuration(ms) {
 
 <style scoped>
 .super-agent {
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
@@ -1400,7 +1400,7 @@ function formatDuration(ms) {
   }
 
   .session-panel {
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     bottom: 0;
@@ -1423,6 +1423,7 @@ function formatDuration(ms) {
 
   .agent-container {
     position: relative;
+    height: calc(100vh - var(--header-height));
   }
 
   .task-main {

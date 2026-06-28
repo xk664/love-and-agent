@@ -511,6 +511,12 @@ function handleLogout() {
   transition: margin-left var(--duration-normal) var(--ease-out);
 }
 
+.main-content {
+  height: calc(100vh - var(--header-height));
+  overflow: hidden;
+  padding: 0;
+}
+
 /* Desktop: offset by sidebar width */
 .is-desktop .main-area {
   margin-left: var(--sidebar-width);
@@ -606,11 +612,6 @@ function handleLogout() {
   background: var(--color-ink);
   border-radius: 1px;
   transition: all var(--duration-fast);
-}
-
-/* ---- Main Content ---- */
-.main-content {
-  padding: 0;
 }
 
 /* ---- Page Transition ---- */
