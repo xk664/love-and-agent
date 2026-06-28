@@ -114,9 +114,21 @@ def setup_logging() -> logging.Logger:
     """
     Setup and configure logging for the application.
     Returns the root logger.
+    Falls back to console-only logging if file handlers fail.
     """
     config = get_logging_config()
-    logging.config.dictConfig(config)
+
+    try:
+        logging.config.dictConfig(config)
+    except (PermissionError, OSError) as e:
+        # Fallback: console-only logging when file handlers fail
+        print(f"Warning: File logging failed ({e}), falling back to console-only")
+        config["handlers"] = {
+            "console": config["handlers"]["console"],
+        }
+        config["root"]["handlers"] = ["console"]
+        config["loggers"][""]["handlers"] = ["console"]
+        logging.config.dictConfig(config)
 
     logger = logging.getLogger(__name__)
     logger.info("Logging configured successfully")

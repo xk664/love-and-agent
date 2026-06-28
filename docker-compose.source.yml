@@ -5,9 +5,6 @@
 #   git clone <repo-url>
 #   cd love-and-agent
 #   docker-compose -f docker-compose.source.yml up -d
-#
-# Note: MySQL, Redis, PgVector are already installed on the host machine (106.53.178.125)
-#       Container accesses them via host IP
 # =============================================================================
 
 version: '3.8'
@@ -18,13 +15,12 @@ services:
     build:
       context: ./yu-ai-agent-python
       dockerfile: Dockerfile.source
-    container_name: love-and-agent
+    container_name: yu-agent
     restart: unless-stopped
     ports:
       - "8000:8000"
     volumes:
       - ./yu-ai-agent-python/config:/app/config
-      - ./yu-ai-agent-python/logs:/app/logs
     environment:
       - APP_ENV=prod
       # 使用宿主机 IP 访问数据库服务
