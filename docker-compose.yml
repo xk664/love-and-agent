@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # AI Agent 应用
+  yu-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yu-agent
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/app/config
+    environment:
+      - APP_ENV=prod
+      - DATABASE_URL=mysql+aiomysql://yu_agent:password@mysql:3306/yu_agent
+      - REDIS_URL=redis://redis:6379/0
+      - PGVECTOR_CONNECTION_STRING=postgresql+asyncpg://yu_agent:password@pgvector:5432/yu_agent_vector
+    depends_on:
+      - mysql
+      - redis
+      - pgvector
+
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: yu-agent-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: yu_agent
+      MYSQL_USER: yu_agent
+      MYSQL_PASSWORD: password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: yu-agent-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # PostgreSQL + PgVector 向量数据库
+  pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: yu-agent-pgvector
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: yu_agent_vector
+      POSTGRES_USER: yu_agent
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c shared_preload_libraries=vector
+
+volumes:
+  mysql_data:
+  redis_data:
+  pgvector_data:

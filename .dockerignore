@@ -1,0 +1,71 @@
+# =============================================================================
+# Docker Ignore - for love-and-agent project
+# =============================================================================
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Build artifacts
+dist/
+build/
+*.spec
+*.exe
+
+# Logs
+logs/
+*.log
+
+# Tests
+tests/
+.pytest_cache/
+.coverage
+
+# Documentation
+*.md
+docs/
+README.md
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (avoid recursive build)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Package files
+package.bat
+package.ps1
+build.bat
+
+# Other projects
+yu-ai-agent-frontend/
+workspace/
+sql/

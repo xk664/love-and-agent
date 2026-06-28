@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: yu-ai-agent-python
+    container_name: love-and-agent-python
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -17,13 +17,11 @@ services:
       - DEBUG=false
       # Use container service names for internal connections
       - DB_HOST=mysql
-      - DB_PORT=3306
+      - DB_PORT=13306
       - PGVECTOR_HOST=pgvector
       - PGVECTOR_PORT=5432
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      # Java backend callback URL (host machine)
-      - CALLBACK_BASE_URL=http://host.docker.internal:8081
+      - REDIS_PORT=16379
     depends_on:
       mysql:
         condition: service_healthy

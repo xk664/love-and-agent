@@ -73,7 +73,29 @@ love-and-agent/
 - PostgreSQL 14+（需安装 pgvector 扩展）
 - Redis 6+
 
-### 1. 启动后端
+### Docker 一键部署（推荐）
+
+```bash
+# 克隆项目
+git clone <your-repo-url> love-and-agent
+cd love-and-agent
+
+# 启动所有服务
+docker-compose -f docker-compose.source.yml up -d
+
+# 查看日志
+docker-compose -f docker-compose.source.yml logs -f yu-agent
+```
+
+部署完成后访问：
+- API 服务: http://localhost:8000
+- API 文档: http://localhost:8000/docs（仅 DEBUG 模式）
+
+详细部署指南请查看 [DOCKER_QUICKSTART.md](DOCKER_QUICKSTART.md) 和 [DEPLOY_GUIDE.md](DEPLOY_GUIDE.md)
+
+### 本地开发启动
+
+#### 1. 启动后端（本地开发）
 
 ```bash
 # 进入后端目录
@@ -97,7 +119,7 @@ python main.py
 
 后端服务默认运行在 http://localhost:8000
 
-### 2. 启动前端
+#### 2. 启动前端（本地开发）
 
 ```bash
 # 进入前端目录
@@ -112,7 +134,7 @@ npm run dev
 
 前端服务默认运行在 http://localhost:5173
 
-### 3. 数据库初始化
+#### 3. 数据库初始化
 
 ```bash
 # 后端启动时会自动创建表结构
